@@ -1,0 +1,37 @@
+{
+    "BTC-PERP": {
+        "wallet_exposure": 0.3,
+        "st_short_atr_window": 15,
+        "st_short_atr_multiplier": 5,
+        "short_ema_window": 20,
+        "long_ema_window": 400
+    },
+    "ETH-PERP": {
+        "wallet_exposure": 0.1,
+        "st_short_atr_window": 15,
+        "st_short_atr_multiplier": 5,
+        "short_ema_window": 40,
+        "long_ema_window": 400
+    },
+    "XRP-PERP": {
+        "wallet_exposure": 0.2,
+        "st_short_atr_window": 15,
+        "st_short_atr_multiplier": 5,
+        "short_ema_window": 20,
+        "long_ema_window": 400
+    },
+    "SOL-PERP": {
+        "wallet_exposure": 0.2,
+        "st_short_atr_window": 15,
+        "st_short_atr_multiplier": 5,
+        "short_ema_window": 40,
+        "long_ema_window": 400
+    },
+    "BNB-PERP": {
+        "wallet_exposure": 0.2,
+        "st_short_atr_window": 15,
+        "st_short_atr_multiplier": 5,
+        "short_ema_window": 20,
+        "long_ema_window": 400
+    }
+}
