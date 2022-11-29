@@ -1,7 +1,7 @@
 {
-  "BTC-PERP": { "sl": 0, "buyPrice": 20597.0, "side": null },
-  "ETH-PERP": { "sl": 0, "buyPrice": 1592.4, "side": null },
-  "SOL-PERP": { "sl": 0, "buyPrice": 32.775, "side": null },
-  "BNB-PERP": { "sl": 0, "buyPrice": 0, "side": null },
-  "XRP-PERP": { "sl": 0, "buyPrice": 0.4663, "side": null }
+  "BTCBUSD": { "sl": 0, "buyPrice": 20597.0, "side": null },
+  "ETHBUSD": { "sl": 0, "buyPrice": 1592.4, "side": null },
+  "SOLBUSD": { "sl": 0, "buyPrice": 32.775, "side": null },
+  "BNBBUSD": { "sl": 0, "buyPrice": 0, "side": null },
+  "XRPBUSD": { "sl": 0, "buyPrice": 0.4663, "side": null }
 }

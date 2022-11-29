@@ -2,21 +2,22 @@ import ccxt
 import pandas as pd
 import time
 
-class SpotFTX():
-    def __init__(self, apiKey=None, secret=None, subAccountName=None):
-        ftxAuthObject = {
+class Binance():
+    def __init__(self, apiKey=None, secret=None):
+        binanceAuthObject = {
             "apiKey": apiKey,
             "secret": secret,
-            'headers': {
-                'FTX-SUBACCOUNT': subAccountName
-            }
+            'enableRateLimit': True,
+            'options': {
+                'defaultType': 'future',
+            },
         }
-        if ftxAuthObject['secret'] == None:
+        if binanceAuthObject['secret'] == None:
             self._auth = False
-            self._session = ccxt.ftx()
+            self._session = ccxt.binance()
         else:
             self._auth = True
-            self._session = ccxt.ftx(ftxAuthObject)
+            self._session = ccxt.binance(config=binanceAuthObject)
         self.market = self._session.load_markets()
 
     def authentication_required(fn):
@@ -115,24 +116,19 @@ class SpotFTX():
     @authentication_required
     def get_all_balance_in_usd(self):
         try:
-            allBalance = {}
             allBalance = self._session.fetchBalance()
             allBalance = allBalance['total']
-            return_balance = {}
-            for coin in allBalance.copy():
-                try:
-                    if allBalance[coin] > 0:
-                        if coin != "USD":
-                            return_balance[coin] = float(allBalance[coin]) * float(self.market[coin+'/USD']['info']['last'])
-                        else:
-                            return_balance[coin] = float(allBalance[coin])
-                except:
-                    pass
-                    print("Cannot get price of",coin+'/USD')
+            for coin in allBalance:
+                if coin != 'USDT':
+                    try:
+                        allBalance[coin] = float(allBalance[coin]) * float(self.market[coin+'USDT']['info']['last'])
+                    except:
+                        pass
+                        print("Cannot get price of",coin+'/USDT')
         except BaseException as err:
             print("An error occured", err)
             exit()
-        return return_balance
+        return allBalance
 
     @authentication_required
     def get_balance_of_one_coin(self, coin):
@@ -147,26 +143,16 @@ class SpotFTX():
             return 0
 
     @authentication_required
-    def get_detail_balance_of_one_coin(self, coin):
-        try:
-            allBalance = self._session.fetchBalance()
-        except BaseException as err:
-            print("An error occured", err)
-            exit()
-        try:
-            return allBalance[coin]
-        except:
-            return 0
-
-    @authentication_required
     def place_market_order(self, symbol, side, amount, leverage=1):
         try:
             return self._session.createOrder(
                 symbol, 
                 'market', 
                 side, 
-                self.convert_amount_to_precision(symbol, amount * leverage),
-                None
+                #self.convert_amount_to_precision(symbol, amount * leverage),
+                amount,
+                None,
+                {'positionSide': "LONG"}
             )
         except BaseException as err:
             print("An error occured", err)
@@ -175,13 +161,18 @@ class SpotFTX():
     @authentication_required
     def place_limit_order(self, symbol, side, amount, price, leverage=1):
         try:
+            self._session.fapiPrivate_post_leverage({
+                "symbol": symbol,
+                "leverage": leverage,
+            })
             return self._session.createOrder(
                 symbol, 
-                'limit', 
-                side, 
-                self.convert_amount_to_precision(symbol, amount * leverage), 
-                self.convert_price_to_precision(symbol, price)
-                )
+                'LIMIT', 
+                side,
+                str(self.convert_amount_to_precision(symbol, amount * leverage)), 
+                str(self.convert_price_to_precision(symbol, price)),
+                {'positionSide': "LONG"}
+            )
         except BaseException as err:
             print("An error occured", err)
             exit()

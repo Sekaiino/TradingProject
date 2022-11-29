@@ -1,24 +1,18 @@
-from utils.supAndRes import SupportAndResistance
-from utils.customIndicators import SuperTrend
-from utils.spotFTX import SpotFTX
-from datetime import datetime, timedelta
+import os
 import json
-import ta
+from dotenv import load_dotenv
+# from utils.spotBinance import Binance
+from utils.binanceSpot import Binance
+from pprint import pprint
 
-# To use later to make stop loss and take profit
-startDate = (datetime.now() + timedelta(days=-15)).strftime("%d %B %Y").lower();
-print(startDate);
+load_dotenv()
+API_KEY: str    = os.getenv('API_KEY')
+SECRET_KEY: str = os.getenv('API_SECRET')
 
-sr = SupportAndResistance();
+client = Binance(apiKey=API_KEY, secret= SECRET_KEY)
 
-with open("liveStrategy/json/coinconfig.json", 'r') as f:
-    paramCoins = json.load(f);
+result = client.get_historical_since("BTCUSDT", "1h", "1 January 2022")
+pprint(result)
 
-for i in paramCoins.keys():
-    print(i);
-    pairSymbol = i.replace('-PERP', 'USDT');
-
-    print("===========================================");
-    meanLevels = sr.mean_levels(pairSymbol=pairSymbol, startDate=startDate, candleMinWindow=1, groupMultiplier=2);
-    print(meanLevels);
-    print("\n");
+client.place_limit_order("BTCUSDT", "BUY", 20, 16500, 1)
+print("order created")

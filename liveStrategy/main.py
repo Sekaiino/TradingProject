@@ -1,12 +1,14 @@
 from utils.supAndRes import SupportAndResistance
 from utils.customIndicators import SuperTrend
-from utils.spotFTX import SpotFTX
+from utils.binanceSpot import Binance
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 import json
 import ta
+import os
 
 # Main function that will start the code
-def main(secret, paramCoins):
+def main(secret: dict, paramCoins: dict) -> None:
     """Define main function to start our object
 
     Raises:
@@ -16,11 +18,10 @@ def main(secret, paramCoins):
     if sum(d["wallet_exposure"] for d in paramCoins.values() if d) > 1:
         raise ValueError("Wallet exposure must be less or equal than 1")
 
-    for x in secret:
-        superReversal = Users(secret[x], paramCoins, "1h", ["long", "short"])
-        superReversal.checkOrderState()
-        superReversal.getSuperTrend()
-        superReversal.superReversalStrategy()
+    superReversal = Users(secret, paramCoins, "1h", ["long", "short"])
+    superReversal.checkOrderState()
+    superReversal.getSuperTrend()
+    superReversal.superReversalStrategy()
 
 class Users():
     def __init__(self, secret, paramCoins, timeframe, type=["long"]) -> None:
@@ -36,18 +37,17 @@ class Users():
         self.useLong = True if "long" in type else False
         self.useShort = True if "short" in type else False
 
-        # FTX object relative variables
-        self.ftx = SpotFTX(
+        # client object relative variables
+        self.client = Binance(
             apiKey=secret["apiKey"],
-            secret=secret["secret"],
-            subAccountName=secret["subAccountName"],
+            secret=secret["secret"]
             )
-        self.openOrders = self.ftx.get_open_order()
-        self.coinBalance = self.ftx.get_all_balance()
-        self.coinInUsd = self.ftx.get_all_balance_in_usd()
-        self.usdBalance = self.coinBalance["USD"]
-        del self.coinBalance["USD"]
-        del self.coinInUsd["USD"]
+        self.openOrders = self.client.get_open_order()
+        self.coinBalance = self.client.get_all_balance()
+        self.coinInUsd = self.client.get_all_balance_in_usd()
+        self.usdBalance = self.coinBalance["BUSD"]
+        del self.coinBalance["BUSD"]
+        del self.coinInUsd["BUSD"]
         self.totalBalance = self.usdBalance + sum(self.coinInUsd.values())
 
     def checkOrderState(self):
@@ -59,16 +59,16 @@ class Users():
                 print(
                     f"Order on {order['market']} is partially fill, create {order['side']} Market of {order['remainingSize']} {order['market']} order to complete it"
                 )
-                self.ftx.cancel_all_open_order(order["market"])
-                self.ftx.place_market_order(order["market"], order["side"], order["remainingSize"])
+                self.client.cancel_all_open_order(order["market"])
+                self.client.place_market_order(order["market"], order["side"], order["remainingSize"])
 
     def getSuperTrend(self):
         """This init the SuperTrend indicators to take trade with it
         """
         for pair in self.paramCoins:
             params = self.paramCoins[pair]
-            self.ftx.cancel_all_open_order(pair)
-            df = self.ftx.get_last_historical(pair, self.timeframe, 2000)
+            self.client.cancel_all_open_order(pair)
+            df = self.client.get_last_historical(pair, self.timeframe, 2000)
             # -- Populate indicators --
             superTrendObj = SuperTrend(
                 df["high"],
@@ -94,9 +94,9 @@ class Users():
         """Buy and sell order to follow the Super Reversal Strategy
         """
         for coin in self.coinInUsd:
-            if self.coinBalance[coin] > float(self.ftx.get_min_order_amount(coin + "-PERP")):
-                self.positions.append(coin + "-PERP")
-                self.availableWalletPct -= self.paramCoins[coin + "/USD"]["wallet_exposure"]
+            if self.coinBalance[coin] > float(self.client.get_min_order_amount(coin + "USDT")):
+                self.positions.append(coin + "USDT")
+                self.availableWalletPct -= self.paramCoins[coin + "USDT"]["wallet_exposure"]
 
         pairToCheck = list(set(self.paramCoins.keys()) - set(self.positions))
 
@@ -104,7 +104,7 @@ class Users():
         for pair in pairToCheck:
             # Place our min stop loss to 0 and fetch important levels of the coin
             minSl = 0
-            meanLevels = self.sr.mean_levels(pairSymbol=pair.replace('-PERP', 'USDT'), startDate=self.startDate, candleMinWindow=1, groupMultiplier=2)
+            meanLevels = self.sr.mean_levels(pairSymbol=pair, startDate=self.startDate, candleMinWindow=1, groupMultiplier=2)
             # iloc -2 to get the last completely close candle
             row = self.dfList[pair].iloc[-2]
 
@@ -117,10 +117,10 @@ class Users():
                 & (row["super_trend_direction"] == True)
                 & (row["ema_short"] > row["ema_long"])
                 ):
-                buyLimitPrice = float(self.ftx.convert_price_to_precision(pair, row["ema_short"]))
+                buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
                 buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
 
-                buyQuantity = float(self.ftx.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
+                buyQuantity = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
 
                 if(buyQuantity > 0):
                     exchangeBuyQuantity = buyQuantity * buyLimitPrice
@@ -128,14 +128,14 @@ class Users():
                         f"Place LONG Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.ftx.place_limit_order(pair, "buy", buyQuantity, buyLimitPrice, self.leverage)
+                    self.client.place_limit_order(pair, "buy", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place the stop loss at last important level
                     for price in meanLevels:
                         if(price > minSl and price < buyLimitPrice):
                             minSl = price
                     
-                    self.ftx.place_market_stop_loss(pair, "sell", buyQuantity, minSl, self.leverage)
+                    self.client.place_market_stop_loss(pair, "sell", buyQuantity, minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice
@@ -146,10 +146,10 @@ class Users():
                 & (row["super_trend_direction"] == False)
                 & (row["ema_short"] < row["ema_long"])
                 ):
-                buyLimitPrice = float(self.ftx.convert_price_to_precision(pair, row["ema_long"]))
+                buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_long"]))
                 buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
 
-                buyQuantity = float(self.ftx.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
+                buyQuantity = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
 
                 if(buyQuantity > 0):
                     exchangeBuyQuantity = buyQuantity * buyLimitPrice
@@ -157,14 +157,14 @@ class Users():
                         f"Place SHORT Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.ftx.place_limit_order(pair, "sell", buyQuantity, buyLimitPrice, self.leverage)
+                    self.client.place_limit_order(pair, "sell", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place a market stop loss at the last important level
                     for price in meanLevels:
                         if(price < minSl and price > buyLimitPrice):
                             minSl = price
 
-                    self.ftx.place_market_stop_loss(pair, "buy", buyQuantity, minSl, self.leverage)
+                    self.client.place_market_stop_loss(pair, "buy", buyQuantity, minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice
@@ -188,15 +188,15 @@ class Users():
                 & (row["super_trend_direction"] == False 
                 | row["ema_short"] < row["ema_long"])
                 ):
-                self.ftx.cancel_all_open_order(pair)
-                sellLimitPrice = float(self.ftx.convert_price_to_precision(pair, row["ema_short"]))
-                sellQuantity = float(self.ftx.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
+                self.client.cancel_all_open_order(pair)
+                sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
+                sellQuantity = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
                 exchangeSellQuantity = sellQuantity * sellLimitPrice
                 print(
                     f"Place CLOSE LONG Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.ftx.place_limit_order(pair, "sell", sellQuantity, sellLimitPrice, self.leverage)
+                self.client.place_limit_order(pair, "sell", sellQuantity, sellLimitPrice, self.leverage)
             
             # Check if you have to close the short position
             if((self.useShort)
@@ -204,15 +204,15 @@ class Users():
                & (row["super_trend_direction"] == True
                | row["ema_long"] < row["ema_short"])
             ):
-                self.ftx.cancel_all_open_order(pair)
-                sellLimitPrice = float(self.ftx.convert_price_to_precision(pair, row["ema_short"]))
-                sellQuantity = float(self.ftx.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
+                self.client.cancel_all_open_order(pair)
+                sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
+                sellQuantity = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
                 exchangeSellQuantity = sellQuantity * sellLimitPrice
                 print(
                     f"Place CLOSE SHORT Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.ftx.place_limit_order(pair, "buy", sellQuantity, sellLimitPrice, self.leverage)
+                self.client.place_limit_order(pair, "buy", sellQuantity, sellLimitPrice, self.leverage)
 
 # Start algo
 if __name__ == "__main__":
@@ -220,8 +220,10 @@ if __name__ == "__main__":
     with open("liveStrategy/json/coinconfig.json", 'r') as f:
         paramCoins = json.load(f);
 
-    with open("liveStrategy/json/config.json", 'r') as f:
-        secret = json.load(f);
+    load_dotenv()
+    API_KEY: str    = os.getenv('API_KEY')
+    SECRET_KEY: str = os.getenv('API_SECRET')
+    binanceAuth = { "apiKey": API_KEY, "secret": SECRET_KEY }
 
     # run main function
-    main(secret=secret, paramCoins=paramCoins)
+    main(secret=binanceAuth, paramCoins=paramCoins)

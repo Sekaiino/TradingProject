@@ -4,7 +4,6 @@ sys.path.append("./live_tools")
 import ccxt
 import ta
 import pandas as pd
-from utilities.spot_ftx import SpotFtx
 from utilities.custom_indicators import SuperTrend
 from datetime import datetime
 import time
