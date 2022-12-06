@@ -1,7 +1,7 @@
 {
     "BTCUSDT": {
         "sl": 0,
-        "buyPrice": 17001.9,
+        "buyPrice": 16999.6,
         "side": "Long"
     },
     "ETHUSDT": {
@@ -16,7 +16,7 @@
     },
     "BNBUSDT": {
         "sl": 0,
-        "buyPrice": 292.17,
+        "buyPrice": 292.15,
         "side": "Short"
     },
     "XRPUSDT": {

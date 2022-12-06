@@ -103,8 +103,7 @@ class Users():
 
         #Check the buy signal for every pair
         for pair in pairToCheck:
-            # Place our min stop loss to 0 and fetch important levels of the coin
-            minSl = 0
+            # fetch important levels of the coin
             meanLevels = self.sr.mean_levels(pairSymbol=pair, startDate=self.startDate, candleMinWindow=1, groupMultiplier=2)
             # iloc -2 to get the last completely close candle
             row = self.dfList[pair].iloc[-2]
@@ -132,11 +131,14 @@ class Users():
                     self.client.place_limit_order(pair, "BUY", "LONG", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place the stop loss at last important level
-                    for price in meanLevels:
-                        if(price > minSl and price < buyLimitPrice):
-                            minSl = price
+                    minSl = meanLevels[0] if meanLevels else None
+                    maxSl = self.client.get_price_of_one_coin(pair)
+                    if minSl:
+                        for price in meanLevels:
+                            if(price > minSl and price < buyLimitPrice and price < maxSl):
+                                minSl = price
 
-                    if minSl < self.client.get_price_of_one_coin(pair):
+                    if minSl > 0 and minSl < maxSl:
                         self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
 
                     # Update data
@@ -162,11 +164,14 @@ class Users():
                     self.client.place_limit_order(pair, "SELL", "SHORT", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place a market stop loss at the last important level
-                    for price in meanLevels:
-                        if(price < minSl and price > buyLimitPrice):
-                            minSl = price
+                    minSl = meanLevels[0] if meanLevels else None
+                    maxSl = self.client.get_price_of_one_coin(pair)
+                    if minSl:
+                        for price in meanLevels:
+                            if(price < minSl and price > buyLimitPrice and price > maxSl):
+                                minSl = price
 
-                    if minSl > self.client.get_price_of_one_coin(pair):
+                    if minSl > maxSl:
                         self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
 
                     # Update data
