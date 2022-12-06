@@ -46,7 +46,9 @@ class Users():
         self.coinBalance = self.client.get_all_balance()
         self.coinInUsd = self.client.get_all_balance_in_usd()
         self.usdBalance = self.coinBalance["USDT"]
+        del self.coinBalance["BUSD"]
         del self.coinBalance["USDT"]
+        del self.coinInUsd["BUSD"]
         del self.coinInUsd["USDT"]
         self.totalBalance = self.usdBalance + sum(self.coinInUsd.values())
 
@@ -133,8 +135,9 @@ class Users():
                     for price in meanLevels:
                         if(price > minSl and price < buyLimitPrice):
                             minSl = price
-                    
-                    self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
+
+                    if minSl < self.client.get_price_of_one_coin(pair):
+                        self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice
@@ -163,7 +166,8 @@ class Users():
                         if(price < minSl and price > buyLimitPrice):
                             minSl = price
 
-                    self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
+                    if minSl > self.client.get_price_of_one_coin(pair):
+                        self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice

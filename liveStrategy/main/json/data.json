@@ -1,7 +1,27 @@
 {
-  "BTCBUSD": { "sl": 0, "buyPrice": 20597.0, "side": null },
-  "ETHBUSD": { "sl": 0, "buyPrice": 1592.4, "side": null },
-  "SOLBUSD": { "sl": 0, "buyPrice": 32.775, "side": null },
-  "BNBBUSD": { "sl": 0, "buyPrice": 0, "side": null },
-  "XRPBUSD": { "sl": 0, "buyPrice": 0.4663, "side": null }
+    "BTCUSDT": {
+        "sl": 0,
+        "buyPrice": 17001.9,
+        "side": "Long"
+    },
+    "ETHUSDT": {
+        "sl": 0,
+        "buyPrice": 1592.4,
+        "side": null
+    },
+    "SOLUSDT": {
+        "sl": 0,
+        "buyPrice": 32.775,
+        "side": null
+    },
+    "BNBUSDT": {
+        "sl": 0,
+        "buyPrice": 292.17,
+        "side": "Short"
+    },
+    "XRPUSDT": {
+        "sl": 0,
+        "buyPrice": 0.3916,
+        "side": "Short"
+    }
 }

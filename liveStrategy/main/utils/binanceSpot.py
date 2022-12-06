@@ -2,6 +2,7 @@ import ccxt
 import pandas as pd
 import time
 from binance.client import Client
+from pprint import pprint
 
 class Binance():
     def __init__(self, apiKey=None, secret=None):
@@ -98,7 +99,7 @@ class Binance():
         return {"bid":ticker["bid"],"ask":ticker["ask"]}
 
     def get_min_order_amount(self, symbol):
-        return self._session.markets_by_id[symbol]["info"]["minProvideSize"]
+        return self._session.markets_by_id[symbol]['limits']['amount']['min']
 
     def convert_amount_to_precision(self, symbol, amount):
         return self._session.amount_to_precision(symbol, amount)
@@ -120,10 +121,10 @@ class Binance():
         try:
             allBalance = self._session.fetchBalance()
             allBalance = allBalance['total']
-            for coin in allBalance:
-                if coin != 'USDT':
+            for coin in allBalance.keys():
+                if coin != 'USDT' and coin != 'BUSD':
                     try:
-                        allBalance[coin] = float(allBalance[coin]) * float(self.market[coin+'USDT']['info']['last'])
+                        allBalance[coin] = float(allBalance[coin]) * float(self._session.fetch_ticker(coin+'/USDT')['last'])
                     except:
                         pass
                         print("Cannot get price of",coin+'/USDT')
@@ -141,6 +142,13 @@ class Binance():
             exit()
         try:
             return allBalance['total'][coin]
+        except:
+            return 0
+
+    @authentication_required
+    def get_price_of_one_coin(self, symbol: str):
+        try:
+            return float(self._trade.get_avg_price(symbol=symbol)['price'])
         except:
             return 0
 
