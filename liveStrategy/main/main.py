@@ -42,25 +42,24 @@ class Users():
             apiKey=secret["apiKey"],
             secret=secret["secret"]
             )
-        self.openOrders = self.client.get_open_order()
+        self.openOrders = self.client.get_open_orders()
         self.coinBalance = self.client.get_all_balance()
         self.coinInUsd = self.client.get_all_balance_in_usd()
-        self.usdBalance = self.coinBalance["BUSD"]
-        del self.coinBalance["BUSD"]
-        del self.coinInUsd["BUSD"]
+        self.usdBalance = self.coinBalance["USDT"]
+        del self.coinBalance["USDT"]
+        del self.coinInUsd["USDT"]
         self.totalBalance = self.usdBalance + sum(self.coinInUsd.values())
 
     def checkOrderState(self):
         """Checking if there is orders that are partially or totally not filled, if it is cancel them
         """
         for order in self.openOrders:
-            order = order["info"]
-            if float(order["filledSize"]) > 0:
+            if float(order["executedQty"]) > 0:
                 print(
-                    f"Order on {order['market']} is partially fill, create {order['side']} Market of {order['remainingSize']} {order['market']} order to complete it"
+                    f"Order on {order['symbol']} is partially fill, create {order['side']} Market of {float(order['origQty']) - float(order['executedQty'])} {order['symbol']} order to complete it"
                 )
-                self.client.cancel_all_open_order(order["market"])
-                self.client.place_market_order(order["market"], order["side"], order["remainingSize"])
+                self.client.cancel_all_open_order(order["symbol"])
+                self.client.place_market_order(order["symbol"], order['positionSide'], order["side"], float(order['origQty']) - float(order['executedQty']), self.leverage)
 
     def getSuperTrend(self):
         """This init the SuperTrend indicators to take trade with it
@@ -114,8 +113,8 @@ class Users():
 
             # Check if you have to open a long position
             if ((self.useLong)
-                & (row["super_trend_direction"] == True)
-                & (row["ema_short"] > row["ema_long"])
+                and (row["super_trend_direction"] == True)
+                and (row["ema_short"] > row["ema_long"])
                 ):
                 buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
                 buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
@@ -128,14 +127,14 @@ class Users():
                         f"Place LONG Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.client.place_limit_order(pair, "buy", buyQuantity, buyLimitPrice, self.leverage)
+                    self.client.place_limit_order(pair, "BUY", "LONG", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place the stop loss at last important level
                     for price in meanLevels:
                         if(price > minSl and price < buyLimitPrice):
                             minSl = price
                     
-                    self.client.place_market_stop_loss(pair, "sell", buyQuantity, minSl, self.leverage)
+                    self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice
@@ -143,8 +142,8 @@ class Users():
             
             # Check if you have to open a short position
             elif((self.useShort)
-                & (row["super_trend_direction"] == False)
-                & (row["ema_short"] < row["ema_long"])
+                and (row["super_trend_direction"] == False)
+                and (row["ema_short"] < row["ema_long"])
                 ):
                 buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_long"]))
                 buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
@@ -157,14 +156,14 @@ class Users():
                         f"Place SHORT Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.client.place_limit_order(pair, "sell", buyQuantity, buyLimitPrice, self.leverage)
+                    self.client.place_limit_order(pair, "SELL", "SHORT", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place a market stop loss at the last important level
                     for price in meanLevels:
                         if(price < minSl and price > buyLimitPrice):
                             minSl = price
 
-                    self.client.place_market_stop_loss(pair, "buy", buyQuantity, minSl, self.leverage)
+                    self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
 
                     # Update data
                     data[pair]['buyPrice'] = buyLimitPrice
@@ -184,9 +183,9 @@ class Users():
 
             # Check if you have to close the long position
             if ((self.useLong)
-                & (row["ema_short"] > row["low"])
-                & (row["super_trend_direction"] == False 
-                | row["ema_short"] < row["ema_long"])
+                and (row["ema_short"] > row["low"])
+                and (row["super_trend_direction"] == False 
+                or row["ema_short"] < row["ema_long"])
                 ):
                 self.client.cancel_all_open_order(pair)
                 sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
@@ -196,13 +195,13 @@ class Users():
                     f"Place CLOSE LONG Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.client.place_limit_order(pair, "sell", sellQuantity, sellLimitPrice, self.leverage)
+                self.client.place_limit_order(pair, "SELL", "LONG", sellQuantity, sellLimitPrice, self.leverage)
             
             # Check if you have to close the short position
             if((self.useShort)
-               & (row["ema_long"] > row["high"])
-               & (row["super_trend_direction"] == True
-               | row["ema_long"] < row["ema_short"])
+               and (row["ema_long"] > row["high"])
+               and (row["super_trend_direction"] == True
+               or row["ema_long"] < row["ema_short"])
             ):
                 self.client.cancel_all_open_order(pair)
                 sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
@@ -212,7 +211,7 @@ class Users():
                     f"Place CLOSE SHORT Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.client.place_limit_order(pair, "buy", sellQuantity, sellLimitPrice, self.leverage)
+                self.client.place_limit_order(pair, "BUY", "SHORT", sellQuantity, sellLimitPrice, self.leverage)
 
 # Start algo
 if __name__ == "__main__":

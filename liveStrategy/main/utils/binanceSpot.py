@@ -1,6 +1,7 @@
 import ccxt
 import pandas as pd
 import time
+from binance.client import Client
 
 class Binance():
     def __init__(self, apiKey=None, secret=None):
@@ -18,6 +19,7 @@ class Binance():
         else:
             self._auth = True
             self._session = ccxt.binance(config=binanceAuthObject)
+            self._trade = Client(api_key=binanceAuthObject["apiKey"], api_secret=binanceAuthObject['secret'])
         self.market = self._session.load_markets()
 
     def authentication_required(fn):
@@ -143,74 +145,77 @@ class Binance():
             return 0
 
     @authentication_required
-    def place_market_order(self, symbol, side, amount, leverage=1):
-        try:
-            return self._session.createOrder(
-                symbol, 
-                'market', 
-                side, 
-                #self.convert_amount_to_precision(symbol, amount * leverage),
-                amount,
-                None,
-                {'positionSide': "LONG"}
-            )
-        except BaseException as err:
-            print("An error occured", err)
-            exit()
-
-    @authentication_required
-    def place_limit_order(self, symbol, side, amount, price, leverage=1):
+    def place_market_order(self, symbol, positionSide, side, amount, leverage=1):
         try:
             self._session.fapiPrivate_post_leverage({
                 "symbol": symbol,
                 "leverage": leverage,
             })
-            return self._session.createOrder(
-                symbol, 
-                'LIMIT', 
-                side,
-                str(self.convert_amount_to_precision(symbol, amount * leverage)), 
-                str(self.convert_price_to_precision(symbol, price)),
-                {'positionSide': "LONG"}
+            return self._trade.futures_create_order(
+                symbol=symbol,
+                side=side,
+                type="MARKET",
+                positionSide=positionSide,
+                quantity=self.convert_amount_to_precision(symbol, amount)
             )
         except BaseException as err:
             print("An error occured", err)
             exit()
 
     @authentication_required
-    def place_market_stop_loss(self, symbol, side, amount, price, leverage=1):
-        params = {
-        'stopPrice': self.convert_price_to_precision(symbol, price),  # your stop price
-        'reduceOnly':True
-        }
+    def place_limit_order(self, symbol, side, positionSide, amount, price, leverage=1):
         try:
-            return self._session.createOrder(
-                symbol,
-                'stop',
-                side,
-                self.convert_amount_to_precision(symbol, amount * leverage),
-                None,
-                params
-                )
+            self._session.fapiPrivate_post_leverage({
+                "symbol": symbol,
+                "leverage": leverage,
+            })
+            return self._trade.futures_create_order(
+                symbol=symbol,
+                side=side,
+                type="LIMIT",
+                positionSide=positionSide,
+                quantity=self.convert_amount_to_precision(symbol, amount),
+                price=str(self.convert_price_to_precision(symbol, price)),
+                timeInForce='GTC'
+            )
         except BaseException as err:
             print("An error occured", err)
             exit()
 
     @authentication_required
-    def place_market_take_profit(self, symbol, side, amount, price, leverage=1):
-        params = {
-        'stopPrice': self.convert_price_to_precision(symbol, price),  # your stop price
-        'reduceOnly':True
-        }
+    def place_market_stop_loss(self, symbol, side, positionSide, stopPrice, leverage=1):
         try:
-            return self._session.createOrder(
-                symbol,
-                'takeProfit',
-                side,
-                self.convert_amount_to_precision(symbol, amount * leverage),
-                None,
-                params
-                )
+            self._session.fapiPrivate_post_leverage({
+                "symbol": symbol,
+                "leverage": leverage,
+            })
+            return self._trade.futures_create_order(
+                symbol=symbol,
+                side=side,
+                positionSide=positionSide,
+                type="STOP_MARKET",
+                stopPrice=self.convert_price_to_precision(symbol, stopPrice),
+                closePosition='true'
+            )
+        except BaseException as err:
+            print("An error occured", err)
+            exit()
+
+    @authentication_required
+    def place_market_take_profit(self, symbol, side, positionSide, stopPrice, leverage=1):
+        try:
+            self._session.fapiPrivate_post_leverage({
+                "symbol": symbol,
+                "leverage": leverage,
+            })
+            return self._trade.futures_create_order(
+                symbol=symbol,
+                side=side,
+                positionSide=positionSide,
+                type="TAKE_PROFIT_MARKET",
+                stopPrice=self.convert_price_to_precision(symbol, stopPrice),
+                closePosition='true'
+            )
         except BaseException as err:
             print("An error occured", err)
             exit()
@@ -224,34 +229,26 @@ class Binance():
             exit()
 
     @authentication_required
-    def cancel_order_by_id(self, id):
+    def cancel_order_by_id(self, symbol, id):
         try:
-            return self._session.cancel_order(id)
+            return self._session.cancel_order(id, symbol)
         except BaseException as err:
             print("An error occured", err)
             exit()
 
     @authentication_required
-    def get_open_order(self):
+    def get_open_orders(self, symbol=None):
         try:
-            return self._session.fetchOpenOrders()
+            if symbol is None:
+                return self._trade.futures_get_open_orders()
+
+            return self._trade.futures_get_open_orders(symbol=symbol)
         except BaseException as err:
             print("An error occured", err)
             exit()
 
     @authentication_required
-    def get_open_stop_order(self):
-        params = {
-            'type':'stop'
-        }
-        try:
-            return self._session.fetchOpenOrders(None,None,None,params)
-        except BaseException as err:
-            print("An error occured", err)
-            exit()
-
-    @authentication_required
-    def get_my_trades(self, symbol=None, since=None, limit=1):
+    def get_my_trades(self, symbol, since=None, limit=1):
         try:
             return self._session.fetch_my_trades(symbol, since, limit)
         except BaseException as err:
