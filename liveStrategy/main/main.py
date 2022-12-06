@@ -108,7 +108,7 @@ class Users():
             row = self.dfList[pair].iloc[-2]
 
             # Fetch data to update it
-            with open("liveStrategy/json/data.json", "r") as f:
+            with open("main/json/data.json", "r") as f:
                 data = json.load(f)
 
             # Check if you have to open a long position
@@ -174,7 +174,7 @@ class Users():
                 continue
 
             # Register the buy price for the coin to place our stop loss later
-            with open("liveStrategy/json/data.json", "w") as f:
+            with open("main/json/data.json", "w") as f:
                 json.dump(data, f, indent=4)
 
         # Check the sell signal for every open positions
@@ -216,7 +216,7 @@ class Users():
 # Start algo
 if __name__ == "__main__":
     # Fetching config data
-    with open("liveStrategy/json/coinconfig.json", 'r') as f:
+    with open("main/json/coinconfig.json", 'r') as f:
         paramCoins = json.load(f);
 
     load_dotenv()
