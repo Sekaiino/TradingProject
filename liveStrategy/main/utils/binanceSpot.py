@@ -2,10 +2,10 @@ import ccxt
 import pandas as pd
 import time
 from binance.client import Client
-from pprint import pprint
+from typing import Optional
 
 class Binance():
-    def __init__(self, apiKey=None, secret=None):
+    def __init__(self, apiKey: str=None, secret: str=None) -> None:
         binanceAuthObject = {
             "apiKey": apiKey,
             "secret": secret,
@@ -15,13 +15,13 @@ class Binance():
             },
         }
         if binanceAuthObject['secret'] == None:
-            self._auth = False
-            self._session = ccxt.binance()
+            self._auth: bool = False
+            self._session: object = ccxt.binance()
         else:
-            self._auth = True
-            self._session = ccxt.binance(config=binanceAuthObject)
-            self._trade = Client(api_key=binanceAuthObject["apiKey"], api_secret=binanceAuthObject['secret'])
-        self.market = self._session.load_markets()
+            self._auth: bool = True
+            self._session: object = ccxt.binance(config=binanceAuthObject)
+            self._trade: object = Client(api_key=binanceAuthObject["apiKey"], api_secret=binanceAuthObject['secret'])
+        self.market: dict = self._session.load_markets()
 
     def authentication_required(fn):
         """Annotation for methods that require auth."""
@@ -33,7 +33,7 @@ class Binance():
                 return fn(self, *args, **kwargs)
         return wrapped
 
-    def get_historical_since(self, symbol, timeframe, startDate):
+    def get_historical_since(self, symbol: str, timeframe: str, startDate: str) -> Optional[pd.DataFrame]:
         try:
             tempData = self._session.fetch_ohlcv(symbol, timeframe, int(
                 time.time()*1000)-1209600000, limit=1000)
@@ -80,9 +80,13 @@ class Binance():
         del result['timestamp']
         return result
 
-    def get_last_historical(self, symbol, timeframe, limit):
-        result = pd.DataFrame(data=self._session.fetch_ohlcv(
-            symbol, timeframe, None, limit=limit))
+    def get_last_historical(self, symbol: str, timeframe: str, limit: int) -> Optional[pd.DataFrame]:
+        try:
+            result = pd.DataFrame(data=self._session.fetch_ohlcv(
+                symbol, timeframe, None, limit=limit))
+        except:
+            return None
+
         result = result.rename(
             columns={0: 'timestamp', 1: 'open', 2: 'high', 3: 'low', 4: 'close', 5: 'volume'})
         result = result.set_index(result['timestamp'])
@@ -90,7 +94,7 @@ class Binance():
         del result['timestamp']
         return result
 
-    def get_bid_ask_price(self, symbol):
+    def get_bid_ask_price(self, symbol: str) -> dict:
         try:
             ticker = self._session.fetchTicker(symbol)
         except BaseException as err:
@@ -98,17 +102,17 @@ class Binance():
             exit()
         return {"bid":ticker["bid"],"ask":ticker["ask"]}
 
-    def get_min_order_amount(self, symbol):
+    def get_min_order_amount(self, symbol: str) -> float:
         return self._session.markets_by_id[symbol]['limits']['amount']['min']
 
-    def convert_amount_to_precision(self, symbol, amount):
+    def convert_amount_to_precision(self, symbol: str, amount: float) -> float:
         return self._session.amount_to_precision(symbol, amount)
 
-    def convert_price_to_precision(self, symbol, price):
+    def convert_price_to_precision(self, symbol: str, price: float) -> float:
         return self._session.price_to_precision(symbol, price)
 
     @authentication_required
-    def get_all_balance(self):
+    def get_all_balance(self) -> dict:
         try:
             allBalance = self._session.fetchBalance()
         except BaseException as err:
@@ -117,7 +121,7 @@ class Binance():
         return allBalance['total']
 
     @authentication_required
-    def get_all_balance_in_usd(self):
+    def get_all_balance_in_usd(self) -> dict:
         try:
             allBalance = self._session.fetchBalance()
             allBalance = allBalance['total']
@@ -134,7 +138,7 @@ class Binance():
         return allBalance
 
     @authentication_required
-    def get_balance_of_one_coin(self, coin):
+    def get_balance_of_one_coin(self, coin: str) -> float:
         try:
             allBalance = self._session.fetchBalance()
         except BaseException as err:
@@ -146,14 +150,14 @@ class Binance():
             return 0
 
     @authentication_required
-    def get_price_of_one_coin(self, symbol: str):
+    def get_price_of_one_coin(self, symbol: str) -> float:
         try:
             return float(self._trade.get_avg_price(symbol=symbol)['price'])
         except:
             return 0
 
     @authentication_required
-    def place_market_order(self, symbol, positionSide, side, amount, leverage=1):
+    def place_market_order(self, symbol: str, positionSide: str, side: str, amount: float, leverage: int=1) -> dict:
         try:
             self._session.fapiPrivate_post_leverage({
                 "symbol": symbol,
@@ -171,7 +175,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def place_limit_order(self, symbol, side, positionSide, amount, price, leverage=1):
+    def place_limit_order(self, symbol: str, side: str, positionSide: str, amount: float, price: float, leverage: int=1) -> dict:
         try:
             self._session.fapiPrivate_post_leverage({
                 "symbol": symbol,
@@ -191,7 +195,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def place_market_stop_loss(self, symbol, side, positionSide, stopPrice, leverage=1):
+    def place_market_stop_loss(self, symbol: str, side: str, positionSide: str, stopPrice: float, leverage: int=1) -> dict:
         try:
             self._session.fapiPrivate_post_leverage({
                 "symbol": symbol,
@@ -210,7 +214,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def place_market_take_profit(self, symbol, side, positionSide, stopPrice, leverage=1):
+    def place_market_take_profit(self, symbol: str, side: str, positionSide: str, stopPrice: float, leverage: int=1) -> dict:
         try:
             self._session.fapiPrivate_post_leverage({
                 "symbol": symbol,
@@ -229,7 +233,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def cancel_all_open_order(self, symbol):
+    def cancel_all_open_order(self, symbol: str) -> dict:
         try:
             return self._session.cancel_all_orders(symbol)
         except BaseException as err:
@@ -237,7 +241,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def cancel_order_by_id(self, symbol, id):
+    def cancel_order_by_id(self, symbol: str, id: int) -> dict:
         try:
             return self._session.cancel_order(id, symbol)
         except BaseException as err:
@@ -245,7 +249,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def get_open_orders(self, symbol=None):
+    def get_open_orders(self, symbol: str=None) -> dict:
         try:
             if symbol is None:
                 return self._trade.futures_get_open_orders()
@@ -256,7 +260,7 @@ class Binance():
             exit()
 
     @authentication_required
-    def get_my_trades(self, symbol, since=None, limit=1):
+    def get_my_trades(self, symbol: str, since: str=None, limit: int=1) -> dict:
         try:
             return self._session.fetch_my_trades(symbol, since, limit)
         except BaseException as err:

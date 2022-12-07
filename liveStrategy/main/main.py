@@ -2,7 +2,9 @@ from utils.supAndRes import SupportAndResistance
 from utils.customIndicators import SuperTrend
 from utils.binanceSpot import Binance
 from datetime import datetime, timedelta
+from typing import Optional
 from dotenv import load_dotenv
+import pandas as pd
 import json
 import ta
 import os
@@ -18,41 +20,41 @@ def main(secret: dict, paramCoins: dict) -> None:
     if sum(d["wallet_exposure"] for d in paramCoins.values() if d) > 1:
         raise ValueError("Wallet exposure must be less or equal than 1")
 
-    superReversal = Users(secret, paramCoins, "1h", ["long", "short"])
+    superReversal: object = Users(secret, paramCoins, "1h", ["long", "short"])
     superReversal.checkOrderState()
     superReversal.getSuperTrend()
     superReversal.superReversalStrategy()
 
 class Users():
-    def __init__(self, secret, paramCoins, timeframe, type=["long"]) -> None:
+    def __init__(self, secret: dict, paramCoins: dict, timeframe: str, type: list=["long"]) -> None:
         # general variables
-        self.dfList = {}
-        self.positions = []
-        self.leverage = 1
-        self.paramCoins = paramCoins
-        self.timeframe = timeframe
-        self.sr = SupportAndResistance()
-        self.startDate = (datetime.now() + timedelta(days=-15)).strftime("%d %B %Y").lower()
-        self.availableWalletPct = 1.01
-        self.useLong = True if "long" in type else False
-        self.useShort = True if "short" in type else False
+        self.dfList: dict = {}
+        self.positions: list = []
+        self.leverage: int = 1
+        self.paramCoins: dict = paramCoins
+        self.timeframe: str = timeframe
+        self.sr: object = SupportAndResistance()
+        self.startDate: str = (datetime.now() + timedelta(days=-15)).strftime("%d %B %Y").lower()
+        self.availableWalletPct: float = 1.01
+        self.useLong: bool = True if "long" in type else False
+        self.useShort: bool = True if "short" in type else False
 
         # client object relative variables
-        self.client = Binance(
+        self.client: object = Binance(
             apiKey=secret["apiKey"],
             secret=secret["secret"]
             )
-        self.openOrders = self.client.get_open_orders()
-        self.coinBalance = self.client.get_all_balance()
-        self.coinInUsd = self.client.get_all_balance_in_usd()
-        self.usdBalance = self.coinBalance["USDT"]
+        self.openOrders: dict = self.client.get_open_orders()
+        self.coinBalance: dict = self.client.get_all_balance()
+        self.coinInUsd: dict = self.client.get_all_balance_in_usd()
+        self.usdBalance: float = self.coinBalance["USDT"]
         del self.coinBalance["BUSD"]
         del self.coinBalance["USDT"]
         del self.coinInUsd["BUSD"]
         del self.coinInUsd["USDT"]
-        self.totalBalance = self.usdBalance + sum(self.coinInUsd.values())
+        self.totalBalance: float = self.usdBalance + sum(self.coinInUsd.values())
 
-    def checkOrderState(self):
+    def checkOrderState(self) -> None:
         """Checking if there is orders that are partially or totally not filled, if it is cancel them
         """
         for order in self.openOrders:
@@ -63,15 +65,15 @@ class Users():
                 self.client.cancel_all_open_order(order["symbol"])
                 self.client.place_market_order(order["symbol"], order['positionSide'], order["side"], float(order['origQty']) - float(order['executedQty']), self.leverage)
 
-    def getSuperTrend(self):
+    def getSuperTrend(self) -> dict:
         """This init the SuperTrend indicators to take trade with it
         """
         for pair in self.paramCoins:
-            params = self.paramCoins[pair]
+            params: dict = self.paramCoins[pair]
             self.client.cancel_all_open_order(pair)
-            df = self.client.get_last_historical(pair, self.timeframe, 2000)
+            df: pd.DataFrame = self.client.get_last_historical(pair, self.timeframe, 2000)
             # -- Populate indicators --
-            superTrendObj = SuperTrend(
+            superTrendObj: object = SuperTrend(
                 df["high"],
                 df["low"],
                 df["close"],
@@ -91,7 +93,7 @@ class Users():
         
         return self.dfList
 
-    def superReversalStrategy(self):
+    def superReversalStrategy(self) -> None:
         """Buy and sell order to follow the Super Reversal Strategy
         """
         for coin in self.coinInUsd:
@@ -99,12 +101,12 @@ class Users():
                 self.positions.append(coin + "USDT")
                 self.availableWalletPct -= self.paramCoins[coin + "USDT"]["wallet_exposure"]
 
-        pairToCheck = list(set(self.paramCoins.keys()) - set(self.positions))
+        pairToCheck: list = list(set(self.paramCoins.keys()) - set(self.positions))
 
         #Check the buy signal for every pair
         for pair in pairToCheck:
             # fetch important levels of the coin
-            meanLevels = self.sr.mean_levels(pairSymbol=pair, startDate=self.startDate, candleMinWindow=1, groupMultiplier=2)
+            meanLevels: list = self.sr.mean_levels(pairSymbol=pair, startDate=self.startDate, candleMinWindow=1, groupMultiplier=2)
             # iloc -2 to get the last completely close candle
             row = self.dfList[pair].iloc[-2]
 
@@ -117,13 +119,13 @@ class Users():
                 and (row["super_trend_direction"] == True)
                 and (row["ema_short"] > row["ema_long"])
                 ):
-                buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
-                buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
+                buyLimitPrice: float = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
+                buyQuantityInUsd: float = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
 
-                buyQuantity = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
+                buyQuantity: float = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
 
                 if(buyQuantity > 0):
-                    exchangeBuyQuantity = buyQuantity * buyLimitPrice
+                    exchangeBuyQuantity: float = buyQuantity * buyLimitPrice
                     print(
                         f"Place LONG Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
@@ -131,8 +133,8 @@ class Users():
                     self.client.place_limit_order(pair, "BUY", "LONG", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place the stop loss at last important level
-                    minSl = meanLevels[0] if meanLevels else None
-                    maxSl = self.client.get_price_of_one_coin(pair)
+                    minSl: Optional[float] = meanLevels[0] if meanLevels else None
+                    maxSl: float = self.client.get_price_of_one_coin(pair)
                     if minSl:
                         for price in meanLevels:
                             if(price > minSl and price < buyLimitPrice and price < maxSl):
@@ -150,13 +152,13 @@ class Users():
                 and (row["super_trend_direction"] == False)
                 and (row["ema_short"] < row["ema_long"])
                 ):
-                buyLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_long"]))
-                buyQuantityInUsd = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
+                buyLimitPrice: float = float(self.client.convert_price_to_precision(pair, row["ema_long"]))
+                buyQuantityInUsd: float = self.usdBalance * (self.paramCoins[pair]["wallet_exposure"] / self.availableWalletPct)
 
-                buyQuantity = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
+                buyQuantity: float = float(self.client.convert_amount_to_precision(pair, buyQuantityInUsd / buyLimitPrice))
 
                 if(buyQuantity > 0):
-                    exchangeBuyQuantity = buyQuantity * buyLimitPrice
+                    exchangeBuyQuantity: float = buyQuantity * buyLimitPrice
                     print(
                         f"Place SHORT Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
@@ -164,8 +166,8 @@ class Users():
                     self.client.place_limit_order(pair, "SELL", "SHORT", buyQuantity, buyLimitPrice, self.leverage)
 
                     # Place a market stop loss at the last important level
-                    minSl = meanLevels[0] if meanLevels else None
-                    maxSl = self.client.get_price_of_one_coin(pair)
+                    minSl: Optional[float] = meanLevels[0] if meanLevels else None
+                    maxSl: float = self.client.get_price_of_one_coin(pair)
                     if minSl:
                         for price in meanLevels:
                             if(price < minSl and price > buyLimitPrice and price > maxSl):
@@ -197,9 +199,9 @@ class Users():
                 or row["ema_short"] < row["ema_long"])
                 ):
                 self.client.cancel_all_open_order(pair)
-                sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
-                sellQuantity = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
-                exchangeSellQuantity = sellQuantity * sellLimitPrice
+                sellLimitPrice: float = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
+                sellQuantity: float = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
+                exchangeSellQuantity: float = sellQuantity * sellLimitPrice
                 print(
                     f"Place CLOSE LONG Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
@@ -213,9 +215,9 @@ class Users():
                or row["ema_long"] < row["ema_short"])
             ):
                 self.client.cancel_all_open_order(pair)
-                sellLimitPrice = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
-                sellQuantity = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
-                exchangeSellQuantity = sellQuantity * sellLimitPrice
+                sellLimitPrice: float = float(self.client.convert_price_to_precision(pair, row["ema_short"]))
+                sellQuantity: float = float(self.client.convert_amount_to_precision(pair, self.coinBalance[pair[:-4]]))
+                exchangeSellQuantity: float = sellQuantity * sellLimitPrice
                 print(
                     f"Place CLOSE SHORT Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
@@ -226,12 +228,12 @@ class Users():
 if __name__ == "__main__":
     # Fetching config data
     with open("main/json/coinconfig.json", 'r') as f:
-        paramCoins = json.load(f);
+        paramCoins: dict = json.load(f)
 
     load_dotenv()
     API_KEY: str    = os.getenv('API_KEY')
     SECRET_KEY: str = os.getenv('API_SECRET')
-    binanceAuth = { "apiKey": API_KEY, "secret": SECRET_KEY }
+    binanceAuth: dict = { "apiKey": API_KEY, "secret": SECRET_KEY }
 
     # run main function
     main(secret=binanceAuth, paramCoins=paramCoins)
