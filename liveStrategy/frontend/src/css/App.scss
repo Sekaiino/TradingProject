@@ -40,7 +40,7 @@
                 &:hover > :not(:hover) { opacity: .4;}
                 li { 
                     margin: 0 5vw;
-                    transition: .5s;
+                    transition: .3s;
                     a {
                         font-size: 1.25em;
                         &:hover { text-decoration: underline; }
@@ -83,7 +83,7 @@
             ul:hover > :not(:hover) { opacity: .4; }
             li, h3 { 
                 margin: 0.5vh 0;
-                transition: .5s;
+                transition: .3s;
                 a:hover { text-decoration: underline; }
             }
             .network {

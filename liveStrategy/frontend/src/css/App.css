@@ -42,7 +42,7 @@
 }
 .App .app-header nav ul li {
   margin: 0 5vw;
-  transition: 0.5s;
+  transition: 0.3s;
 }
 .App .app-header nav ul li a {
   font-size: 1.25em;
@@ -86,7 +86,7 @@
 }
 .App .app-footer aside li, .App .app-footer aside h3 {
   margin: 0.5vh 0;
-  transition: 0.5s;
+  transition: 0.3s;
 }
 .App .app-footer aside li a:hover, .App .app-footer aside h3 a:hover {
   text-decoration: underline;
