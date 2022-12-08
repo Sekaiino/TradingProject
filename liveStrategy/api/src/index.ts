@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import express from 'express';
 import http from 'http';
 import { config } from './config/config';
+import CoinconfigRoutes from './routes/Coinconfig';
+import TradeRoutes from './routes/Trade';
+import UserRoutes from './routes/User';
+import WalletRoutes from './routes/Wallet';
 
 const app = express();
 
@@ -46,7 +50,10 @@ const startServer = () => {
     });
 
     // Routes
-    // ** To complete **
+    app.use('/api/coinconfig', CoinconfigRoutes);
+    app.use('/api/user', UserRoutes);
+    app.use('/api/trade', TradeRoutes);
+    app.use('/api/wallet', WalletRoutes);
 
     // HealthCheck
     app.get('/api/ping', (req, res, next) => res.status(200).json({ message: "pong" }));
