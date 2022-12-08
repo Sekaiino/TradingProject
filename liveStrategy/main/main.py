@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv
 import pandas as pd
-import json
+import requests
 import ta
 import os
 
@@ -110,10 +110,6 @@ class Users():
             # iloc -2 to get the last completely close candle
             row = self.dfList[pair].iloc[-2]
 
-            # Fetch data to update it
-            with open("main/json/data.json", "r") as f:
-                data = json.load(f)
-
             # Check if you have to open a long position
             if ((self.useLong)
                 and (row["super_trend_direction"] == True)
@@ -144,8 +140,22 @@ class Users():
                         self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
 
                     # Update data
-                    data[pair]['buyPrice'] = buyLimitPrice
-                    data[pair]['side'] = "Long"
+                    data = {
+                        'pairSymbol': pair,
+                        'sl': minSl if minSl != 0 else None,
+                        'buyQuantity': buyQuantity,
+                        'buyPrice': buyLimitPrice,
+                        'totalSpend': round(exchangeBuyQuantity, 2),
+                        'side': 'LONG'
+                    }
+
+                    try:
+                        response = requests.post('http://localhost:8000/api/trade/create', data=data)
+                        if not response.ok:
+                            print('Impossible to post trade to the database')
+                    except:
+                        print('HTTP error')
+                        pass
             
             # Check if you have to open a short position
             elif((self.useShort)
@@ -177,16 +187,26 @@ class Users():
                         self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
 
                     # Update data
-                    data[pair]['buyPrice'] = buyLimitPrice
-                    data[pair]['side'] = "Short"
+                    data = {
+                        'pairSymbol': pair,
+                        'sl': minSl if minSl != 0 else None,
+                        'buyQuantity': buyQuantity,
+                        'buyPrice': buyLimitPrice,
+                        'totalSpend': round(exchangeBuyQuantity, 2),
+                        'side': 'SHORT'
+                    }
+
+                    try:
+                        response = requests.post('http://localhost:8000/api/trade/create', data=data)
+                        if not response.ok:
+                            print('Impossible to post trade to the database')
+                    except:
+                        print('HTTP error')
+                        pass
 
             # If no opportunity, start the next iteration
             else:
                 continue
-
-            # Register the buy price for the coin to place our stop loss later
-            with open("main/json/data.json", "w") as f:
-                json.dump(data, f, indent=4)
 
         # Check the sell signal for every open positions
         for pair in self.positions:
@@ -226,9 +246,13 @@ class Users():
 
 # Start algo
 if __name__ == "__main__":
-    # Fetching config data
-    with open("main/json/coinconfig.json", 'r') as f:
-        paramCoins: dict = json.load(f)
+    # Fetching config data from the database
+    response = requests.get('http://localhost:8000/api/coinconfig/get/')
+    if response.ok:
+        paramCoins: dict = response.json()['coinconfig'][0]
+        del paramCoins['_id']
+    else:
+        response.raise_for_status()
 
     load_dotenv()
     API_KEY: str    = os.getenv('API_KEY')
