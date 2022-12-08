@@ -21,9 +21,9 @@ const createCoinconfig = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readCoinconfig = (req: Request, res: Response, next: NextFunction) => {
-    const CoinconfigId = req.params.coinconfigId;
+    const coinconfigId = req.params.coinconfigId;
 
-    return Coinconfig.findById(CoinconfigId)
+    return Coinconfig.findById(coinconfigId)
         .then((coinconfig) => (coinconfig ? res.status(200).json({ coinconfig }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }));
 };

@@ -18,9 +18,9 @@ const createWallet = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readWallet = (req: Request, res: Response, next: NextFunction) => {
-    const WalletId = req.params.walletId;
+    const walletId = req.params.walletId;
 
-    return Wallet.findById(WalletId)
+    return Wallet.findById(walletId)
         .then((wallet) => (wallet ? res.status(200).json({ wallet }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }));
 };

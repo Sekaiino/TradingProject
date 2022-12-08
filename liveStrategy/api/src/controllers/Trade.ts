@@ -23,9 +23,9 @@ const createTrade = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readTrade = (req: Request, res: Response, next: NextFunction) => {
-    const TradeId = req.params.tradeId;
+    const tradeId = req.params.tradeId;
 
-    return Trade.findById(TradeId)
+    return Trade.findById(tradeId)
         .then((trade) => (trade ? res.status(200).json({ trade }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }));
 };

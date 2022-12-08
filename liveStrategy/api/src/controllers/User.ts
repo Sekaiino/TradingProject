@@ -22,9 +22,9 @@ const createUser = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const readUser = (req: Request, res: Response, next: NextFunction) => {
-    const UserId = req.params.userId;
+    const userId = req.params.userId;
 
-    return User.findById(UserId)
+    return User.findById(userId)
         .then((user) => (user ? res.status(200).json({ user }) : res.status(404).json({ message: 'not found' })))
         .catch((error) => res.status(500).json({ error }));
 };
