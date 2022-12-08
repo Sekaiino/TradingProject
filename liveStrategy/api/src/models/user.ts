@@ -20,9 +20,7 @@ const UserSchema: Schema = new Schema(
         birthday: { type: Date, required: true },
         pseudo: { type: String, required: true }
     },
-    {
-        versionKey: false
-    }
+    { versionKey: false }
 );
 
 export default mongoose.model<IUserModel>('User', UserSchema);

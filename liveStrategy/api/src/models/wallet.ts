@@ -12,9 +12,7 @@ const WalletSchema: Schema = new Schema(
         totalBalance: { type: Number, required: true },
         date: { type: Date, required: true, default: Date.now }
     },
-    {
-        versionKey: false
-    }
+    { versionKey: false }
 )
 
 export default mongoose.model<IWalletModel>('Wallet', WalletSchema);
