@@ -14,15 +14,15 @@ const Footer = () => {
                     <h3><Link to="">Trades</Link></h3>
                     <li><Link to="">Wallet evolution</Link></li>
                     <li><Link to="">20 lasts trades</Link></li>
-                    <li><Link to="">Historical human transaction</Link></li>
+                    <li><Link to="">Historical transactions</Link></li>
                 </ul>
                 <ul>
-                    <h3><Link to="">Project details</Link></h3>
-                    <li><Link to="">Introduction</Link></li>
-                    <li><Link to="">Strategy</Link></li>
-                    <li><Link to="">Development steps</Link></li>
-                    <li><Link to="">Technology used</Link></li>
-                    <li><Link to="">Source code</Link></li>
+                    <h3><Link to="/project_details">Project details</Link></h3>
+                    <li><Link to={{ pathname: "/project_details", hash: "#intro" }}>Introduction</Link></li>
+                    <li><Link to={{ pathname: "/project_details", hash: "#strategy" }}>Trading strategy</Link></li>
+                    <li><Link to={{ pathname: "/project_details", hash: "#development" }}>Development steps</Link></li>
+                    <li><Link to={{ pathname: "/project_details", hash: "#technology" }}>Technology used</Link></li>
+                    <li><Link to={{ pathname: "/project_details", hash: "#source" }}>Source code</Link></li>
                 </ul>
             </aside>
             <aside>

@@ -2,8 +2,8 @@ const Homepage = () => {
     return(
         <section className="home">
             <h2>Homepage</h2>
-            <fieldset id="intro">
-                <legend>Introduction</legend>
+            <article id="intro">
+                <h3>Introduction</h3>
                 <aside>
                     <p> 
                         Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
@@ -11,9 +11,9 @@ const Homepage = () => {
                         Sapiente quia quam esse sint deserunt.
                     </p>
                 </aside>
-            </fieldset>
-            <fieldset id="trade">
-                <legend>Lasts trades</legend>
+            </article>
+            <article id="trade">
+                <h3>Lasts trades</h3>
                 <ul>
                     <li>1st trade</li>
                     <li>2nd trade</li>
@@ -21,7 +21,7 @@ const Homepage = () => {
                     <li>4th trade</li>
                     <li>5th trade</li>
                 </ul>
-            </fieldset>
+            </article>
         </section>
     )
 };
