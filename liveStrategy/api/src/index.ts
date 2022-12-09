@@ -6,6 +6,7 @@ import CoinconfigRoutes from './routes/Coinconfig';
 import TradeRoutes from './routes/Trade';
 import UserRoutes from './routes/User';
 import WalletRoutes from './routes/Wallet';
+import TransactionsRoutes from './routes/Transactions';
 
 const app = express();
 
@@ -54,6 +55,7 @@ const startServer = () => {
     app.use('/api/user', UserRoutes);
     app.use('/api/trade', TradeRoutes);
     app.use('/api/wallet', WalletRoutes);
+    app.use('/api/transactions', TransactionsRoutes);
 
     // HealthCheck
     app.get('/api/ping', (req, res, next) => res.status(200).json({ message: "pong" }));
