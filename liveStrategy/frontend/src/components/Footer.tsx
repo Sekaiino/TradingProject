@@ -22,7 +22,7 @@ const Footer = () => {
                     <li><Link to={{ pathname: "/project_details", hash: "#strategy" }}>Trading strategy</Link></li>
                     <li><Link to={{ pathname: "/project_details", hash: "#development" }}>Development steps</Link></li>
                     <li><Link to={{ pathname: "/project_details", hash: "#technology" }}>Technology used</Link></li>
-                    <li><Link to={{ pathname: "/project_details", hash: "#source" }}>Source code</Link></li>
+                    <li><Link to={{ pathname: "/project_details", hash: "#credit" }}>credit</Link></li>
                 </ul>
             </aside>
             <aside>

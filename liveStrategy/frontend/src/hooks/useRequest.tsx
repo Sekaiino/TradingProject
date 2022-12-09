@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const useRequest = (method: string, url: string, params?: object) => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
     const [isPending, setIsPending] = useState(true);
     const [error, setError] = useState(null);
 
@@ -26,7 +26,7 @@ const useRequest = (method: string, url: string, params?: object) => {
             setIsPending(false);
         })
         .catch((err) => {
-            if(err.name === 'AbortError') {
+            if(err.name === 'CanceledError') {
                 console.log("Fetch aborted");
             } else {
                 setIsPending(false);
@@ -35,7 +35,7 @@ const useRequest = (method: string, url: string, params?: object) => {
         })
 
         return () => abortContent.abort();
-    }, [method, url]);
+    }, []);
 
     return { data, isPending, error };
 }
