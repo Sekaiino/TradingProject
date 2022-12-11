@@ -23,7 +23,7 @@ function App() {
 					<Route path="/" element={<Homepage />} />
 					<Route path="/trade" element={<Trade />} />
 					<Route path="/project_details" element={<ProjectDetails />} />
-					<Route path="/parameters" element={<Parameters />} />
+					<Route path="/parameter" element={<Parameters />} />
 					<Route path='*' element={<NotFound />} />
 				</Routes>
 				<Footer />

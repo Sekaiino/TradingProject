@@ -30,6 +30,15 @@
 .App .app-header nav img {
   margin-left: 2.5vw;
   width: 5%;
+  animation: spin 4s infinite linear;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .App .app-header nav ul {
   display: flex;
@@ -72,6 +81,45 @@
 }
 .App section.trade .transactions h3 {
   transform: translate(-5vw, -12vh);
+}
+.App section.parameter form {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15vh;
+}
+.App section .pair-params {
+  margin: 5vh 5vw;
+  width: 15vw;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: center;
+  background-color: #323F4B;
+  padding: 2.5vh 2.5vw;
+  border-radius: 5px;
+  border: 1px solid #F5F7FA;
+}
+.App section .pair-params h3 {
+  padding-bottom: 1vh;
+  margin-bottom: 2vh;
+  border-bottom: 1px solid #F5F7FA;
+}
+.App section .pair-params label {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5vh 0;
+}
+.App section .pair-params label input {
+  width: 3vw;
+  padding: 2px;
+  text-align: center;
+  background-color: #616E7C;
+  border: none;
+  border-radius: 5px;
 }
 .App article {
   width: 80%;
