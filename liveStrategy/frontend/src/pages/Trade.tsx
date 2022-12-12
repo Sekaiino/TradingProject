@@ -2,7 +2,7 @@ import { useRequest } from "../hooks/useRequest";
 import { Chart } from "react-google-charts";
 import { IsPending } from "../components/IsPending";
 import { Error } from "../components/Error";
-import { ITrade, ITrades } from "../interface/Interface";
+import { ITrade, ITrades, ITransaction, ITransactions } from "../interface/Interface";
 
 const Trade = () => {
     const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
@@ -11,8 +11,9 @@ const Trade = () => {
     // const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', 'http://localhost:8000/api/wallet/get/');
     // const wallets = walletData.constructor !== Array ? walletData.wallet : false;
 
-    // const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
-    // const transactions = transactionData.constructor !== Array ? transactionData.transactions : false;
+    const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
+    console.log(transactionData);
+    const transactions = transactionData.constructor !== Array ? (transactionData as unknown as ITransactions).transactions : false;
 
     const asset = [
         ["Date", "Assets"],
@@ -40,14 +41,25 @@ const Trade = () => {
             </aside>
             <article className="transactions">
                 <h3>Historical transactions</h3>
-                <ul>
-                    <li className="title">
-                        <h4>Date</h4>
-                        <h4>Type</h4>
-                        <h4>Amount moved</h4>
-                    </li>
-                    <hr />
-                </ul>
+                {transactions &&
+                    <ul>
+                        <li className="title">
+                            <h4>Date</h4>
+                            <h4>Type</h4>
+                            <h4>Amount moved</h4>
+                        </li>
+                        <hr />
+                        { transactions.map((transaction: ITransaction) => {
+                            return (
+                                <li key={transaction._id}>
+                                    <p>{(transaction.date).toString().substring(0, 10)}</p>
+                                    <p>{transaction.type.toUpperCase()}</p>
+                                    <p>{transaction.amount}$</p>
+                                </li>
+                            )} 
+                        )}
+                    </ul>
+                }
             </article>
             <article>
                 <h3>Trades</h3>
@@ -64,20 +76,20 @@ const Trade = () => {
                         <h4>Side</h4>
                     </li>
                     <hr />
-                    {(trades.map((trade: ITrade) => {
+                    {trades.map((trade: ITrade) => {
                         let style = trade.side === 'LONG' ? { backgroundColor: 'green' } : { backgroundColor: 'red' };
                         return (
                             <li style={style} key={trade._id}>
-                            <p>{(trade.date).toString().replace("T", " ").replace("Z", " ")}</p>
-                            <p>{trade.pairSymbol}</p>
-                            <p>{trade.sl} $</p>
-                            <p>{trade.buyQuantity} {(trade.pairSymbol).replace("USDT", "")}</p>
-                            <p>{trade.buyPrice} $</p>
-                            <p>~ {trade.totalSpend} $</p>
-                            <p>{trade.side}</p>
-                        </li>
+                                <p>{(trade.date).toString().replace("T", " ").replace("Z", " ")}</p>
+                                <p>{trade.pairSymbol}</p>
+                                <p>{trade.sl} $</p>
+                                <p>{trade.buyQuantity} {(trade.pairSymbol).replace("USDT", "")}</p>
+                                <p>{trade.buyPrice} $</p>
+                                <p>~ {trade.totalSpend} $</p>
+                                <p>{trade.side}</p>
+                            </li>
+                        )}
                     )}
-                    ))}
                 </ul>
                 }
                 { tradeError && <Error /> }

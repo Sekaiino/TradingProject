@@ -72,15 +72,23 @@
   align-items: flex-start;
   justify-content: space-around;
 }
+.App section.trade aside {
+  margin: 0 5vw;
+}
 .App section.trade h2 {
   width: 100%;
 }
 .App section.trade .transactions {
-  width: 20vw !important;
-  margin: 0;
+  width: 30vw !important;
+  margin-left: 0;
+  margin-top: 0;
+  padding: 5vh 2.5vw;
 }
 .App section.trade .transactions h3 {
-  transform: translate(-5vw, -12vh);
+  transform: translate(-5vw, -7vh);
+}
+.App section.trade .transactions ul li p, .App section.trade .transactions ul li h4 {
+  width: 33.3333333333%;
 }
 .App section.loading {
   height: 80vh;

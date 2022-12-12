@@ -47,11 +47,12 @@ export interface IWallets {
 
 // Transactions types
 export interface ITransaction {
+    _id: string,
     type: string,
     amount: number,
     date: Date
 }
 
 export interface ITransactions {
-    transaction: ITransaction[]
+    transactions: ITransaction[]
 }
