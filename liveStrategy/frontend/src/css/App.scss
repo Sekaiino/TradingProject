@@ -31,7 +31,7 @@
             img { 
                 margin-left: 2.5vw;
                 width: 5%;
-                animation: spin 4s infinite linear;
+                animation: spin 10s infinite linear;
             }
             @keyframes spin {
                 0% {transform: rotate(0deg);}
@@ -70,6 +70,36 @@
                 width: 20vw !important; 
                 margin: 0;
                 h3 { transform: translate(-5vw, -12vh)}
+            }
+        }
+        &.loading {
+            height: 80vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .lds-dual-ring {
+                display: inline-block;
+                width: 80px;
+                height: 80px;
+                &:after {
+                    content: " ";
+                    display: block;
+                    width: 64px;
+                    height: 64px;
+                    border-radius: 50%;
+                    border: 6px solid #fff;
+                    border-color: #fff transparent #fff transparent;
+                    animation: lds-dual-ring 2s linear infinite;
+                    @keyframes lds-dual-ring {
+                        0% {
+                          transform: rotate(0deg);
+                        }
+                        100% {
+                          transform: rotate(360deg);
+                        }
+                    }
+                  }
             }
         }
         &.parameter form {

@@ -16,7 +16,7 @@ const useRequest = (method: string, url: string, params?: object) => {
             signal: abortContent.signal
         })
         .then(res => {
-            if(!(res.statusText === 'OK')) {
+            if(res.statusText !== 'OK') {
                 throw Error('Could not fetch the data for that resource');
             }
             return res.data;
@@ -35,7 +35,7 @@ const useRequest = (method: string, url: string, params?: object) => {
         })
 
         return () => abortContent.abort();
-    }, []);
+    }, [method, url, params]);
 
     return { data, isPending, error };
 }

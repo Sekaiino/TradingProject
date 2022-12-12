@@ -4,7 +4,7 @@ const Navbar = () => {
     return (
         <header className="app-header">
             <nav>
-                <img src={require('../images/logo.png')} alt="logo" />
+                <img src={require('../images/logo2.png')} alt="logo" />
                 <ul className='menu'>
                     <li><Link to="/">Home</Link></li>
                     <li><Link to="/trade">Trades</Link></li>

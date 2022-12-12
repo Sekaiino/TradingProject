@@ -1,7 +1,7 @@
 const IsPending = () => {
     return (
         <section className="loading">
-            <span></span>
+            <div className="lds-dual-ring"></div>
         </section>
     )
 }

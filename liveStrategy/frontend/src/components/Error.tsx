@@ -8,8 +8,8 @@ const Error = () => {
                 </aside>
                 <p>
                     Sorry ! The resource you are looking for couldn't be accessed. 
-                    Please double check your url and if you are sure that it is correct,
-                    report me your issue.
+                    Please reload the page and if it still doesn't work, report me 
+                    your issue.
                 </p>
             </article>
         </section>

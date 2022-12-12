@@ -1,24 +1,13 @@
+import { Error } from "../components/Error";
+import { IsPending } from "../components/IsPending";
 import { useRequest } from "../hooks/useRequest";
-
-export interface ITrade {
-    pairSymbol: string,
-    sl: number,
-    buyQuantity: number,
-    buyPrice: number,
-    totalSpend: number,
-    side: string,
-    date: Date,
-    _id: string
-}
-
-export interface ITrades {
-    trade: ITrade[]
-}
+import { ITrade, ITrades } from "../interface/Interface";
 
 const Homepage = () => {
 
     const { data, isPending, error } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
-    const trades = (data as unknown as ITrades).trade;
+    const trades = data.constructor !== Array ? (data as unknown as ITrades).trade : false;
+    let counter: number = 1;
 
     return(
         <section className="home">
@@ -38,7 +27,7 @@ const Homepage = () => {
             </article>
             <article id="trade">
                 <h3>Lasts trades</h3>
-                { isPending && <span className="loading">Loading...</span> }
+                { isPending && <IsPending /> }
                 { trades && 
                 <ul>
                     <li className="title">
@@ -52,8 +41,13 @@ const Homepage = () => {
                     </li>
                     <hr />
                     {(trades.map((trade: ITrade) => {
-                        let style;
-                        trade.side === 'LONG' ? style = { backgroundColor: 'green' } : style = { backgroundColor: 'red' };
+                        let style = {}
+                        if(counter > 5) {
+                            style = { display: 'none' };
+                        } else {
+                            style = trade.side === 'LONG' ? { backgroundColor: 'green' } : { backgroundColor: 'red' };
+                        }
+                        counter++;
                         return (
                             <li style={style} key={trade._id}>
                             <p>{(trade.date).toString().replace("T", " ").replace("Z", " ")}</p>
@@ -68,7 +62,7 @@ const Homepage = () => {
                     ))}
                 </ul>
                 }
-                { error && <h4>An error occured while fetching data. please try again later</h4> }
+                { error && <Error /> }
             </article>
         </section>
     )
