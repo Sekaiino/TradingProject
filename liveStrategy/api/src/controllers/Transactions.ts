@@ -3,16 +3,12 @@ import mongoose from 'mongoose';
 import Transactions from "../models/Transactions";
 
 const createTransactions = (req: Request, res: Response, next: NextFunction) => {
-    const { pairSymbol, sl, buyQuantity, buyPrice, totalSpend, side, date } = req.body;
+    const { type, amount, date } = req.body;
 
     const transactions = new Transactions({
         _id: new mongoose.Types.ObjectId(),
-        pairSymbol,
-        sl,
-        buyQuantity,
-        buyPrice,
-        totalSpend,
-        side,
+        type,
+        amount,
         date
     });
 
