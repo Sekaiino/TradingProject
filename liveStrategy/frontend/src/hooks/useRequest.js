@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const useRequest = (method: string, url: string, params?: object) => {
+const useRequest = (method, url, params) => {
     const [data, setData] = useState([]);
     const [isPending, setIsPending] = useState(true);
     const [error, setError] = useState(null);
@@ -40,4 +40,4 @@ const useRequest = (method: string, url: string, params?: object) => {
     return { data, isPending, error };
 }
 
-export { useRequest }
+export default useRequest;

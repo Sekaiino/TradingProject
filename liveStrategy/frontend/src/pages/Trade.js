@@ -1,19 +1,18 @@
-import { useRequest } from "../hooks/useRequest";
-import { Chart } from "react-google-charts";
-import { IsPending } from "../components/IsPending";
-import { Error } from "../components/Error";
-import { ITrade, ITrades, ITransaction, ITransactions } from "../interface/Interface";
+import useRequest from "../hooks/useRequest";
+import Chart from "react-google-charts";
+import IsPending from "../components/IsPending";
+import Error from "../components/Error";
 
 const Trade = () => {
     const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
-    const trades = tradeData.constructor !== Array ? (tradeData as unknown as ITrades).trade : false;
+    const trades = tradeData.constructor !== Array ? tradeData.trade : false;
 
     // const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', 'http://localhost:8000/api/wallet/get/');
     // const wallets = walletData.constructor !== Array ? walletData.wallet : false;
 
+    // eslint-disable-next-line
     const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
-    console.log(transactionData);
-    const transactions = transactionData.constructor !== Array ? (transactionData as unknown as ITransactions).transactions : false;
+    const transactions = transactionData.constructor !== Array ? transactionData.transactions : false;
 
     const asset = [
         ["Date", "Assets"],
@@ -49,7 +48,7 @@ const Trade = () => {
                             <h4>Amount moved</h4>
                         </li>
                         <hr />
-                        { transactions.map((transaction: ITransaction) => {
+                        { transactions.map((transaction) => {
                             return (
                                 <li key={transaction._id}>
                                     <p>{(transaction.date).toString().substring(0, 10)}</p>
@@ -76,7 +75,7 @@ const Trade = () => {
                         <h4>Side</h4>
                     </li>
                     <hr />
-                    {trades.map((trade: ITrade) => {
+                    {trades.map((trade) => {
                         let style = trade.side === 'LONG' ? { backgroundColor: 'green' } : { backgroundColor: 'red' };
                         return (
                             <li style={style} key={trade._id}>
@@ -98,4 +97,4 @@ const Trade = () => {
     )
 }
 
-export { Trade };
+export default Trade;

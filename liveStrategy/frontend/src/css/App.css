@@ -84,9 +84,6 @@
   margin-top: 0;
   padding: 5vh 2.5vw;
 }
-.App section.trade .transactions h3 {
-  transform: translate(-5vw, -7vh);
-}
 .App section.trade .transactions ul li p, .App section.trade .transactions ul li h4 {
   width: 33.3333333333%;
 }
@@ -159,10 +156,22 @@
   border: none;
   border-radius: 5px;
 }
+.App section aside {
+  margin: 0 0 5% 5%;
+  display: flex;
+}
+.App section aside a {
+  display: flex;
+  align-items: center;
+  text-decoration: underline;
+}
+.App section aside a .icons {
+  margin-left: 1vw;
+}
 .App article {
   width: 80%;
   margin: 10vh auto;
-  padding: 10vh 5vw;
+  padding: 5vh 5vw;
   background-color: #323F4B;
   border-radius: 5px;
   display: flex;
@@ -171,9 +180,10 @@
   border: 1px solid #F5F7FA;
 }
 .App article h3 {
-  transform: translate(-30vw, -12vh);
+  margin-bottom: 5vh;
+  align-self: flex-start;
   padding: 0.5vh 1vw;
-  font-size: 1em;
+  font-size: 1.2em;
   background-color: #F5F7FA;
   border-radius: 5px;
   color: #323F4B;
@@ -205,6 +215,34 @@
 }
 .App article ul li.title {
   background-color: #616E7C;
+}
+.App article details {
+  margin: 1vh auto;
+  width: 70vw;
+}
+.App article details[open] .drop_down {
+  transform: rotate(90deg);
+}
+.App article details summary {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
+  margin: 1vh auto;
+}
+.App article details summary:hover {
+  cursor: pointer;
+}
+.App article details summary .drop_down {
+  margin-right: 0.5vw;
+}
+.App article details ul li {
+  margin-bottom: 1vh;
+}
+.App article details ul li .icons {
+  margin: 0 1vw 0 2vw;
+}
+.App article details ul li a {
+  text-decoration: underline;
 }
 .App .app-footer {
   margin-top: auto;

@@ -1,13 +1,12 @@
-import { Error } from "../components/Error";
-import { IsPending } from "../components/IsPending";
-import { useRequest } from "../hooks/useRequest";
-import { ITrade, ITrades } from "../interface/Interface";
+import Error from "../components/Error";
+import IsPending from "../components/IsPending";
+import useRequest from "../hooks/useRequest";
 
 const Homepage = () => {
 
     const { data, isPending, error } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
-    const trades = data.constructor !== Array ? (data as unknown as ITrades).trade : false;
-    let counter: number = 1;
+    const trades = data.constructor !== Array ? data.trade : false;
+    let counter = 1;
 
     return(
         <section className="home">
@@ -40,7 +39,7 @@ const Homepage = () => {
                         <h4>Side</h4>
                     </li>
                     <hr />
-                    {(trades.map((trade: ITrade) => {
+                    {(trades.map((trade) => {
                         let style = {}
                         if(counter > 5) {
                             style = { display: 'none' };
@@ -68,4 +67,4 @@ const Homepage = () => {
     )
 };
 
-export {Homepage};
+export default Homepage;

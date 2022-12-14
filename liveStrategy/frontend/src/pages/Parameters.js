@@ -1,11 +1,10 @@
-import { IsPending } from "../components/IsPending";
-import { Error } from '../components/Error';
-import { useRequest } from "../hooks/useRequest";
-import { ICoinconfigs } from "../interface/Interface";
+import IsPending from "../components/IsPending";
+import Error from '../components/Error';
+import useRequest from "../hooks/useRequest";
 
 const Parameters = () => {
     const { data, isPending, error } = useRequest("GET", "http://localhost:8000/api/coinconfig/get/");
-    const params = data.constructor !== Array ? (data as unknown as ICoinconfigs).coinconfig[0] : false;
+    const params = data.constructor !== Array ? data.coinconfig[0] : false;
 
     return(
         <div>
@@ -70,4 +69,4 @@ const Parameters = () => {
     )
 }
 
-export { Parameters };
+export default Parameters;

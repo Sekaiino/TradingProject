@@ -6,4 +6,4 @@ const IsPending = () => {
     )
 }
 
-export { IsPending };
+export default IsPending;
