@@ -13,16 +13,14 @@ const Homepage = () => {
             <h2>Homepage</h2>
             <article id="intro">
                 <h3>Introduction</h3>
-                <aside>
-                    <p> 
-                        This website is most likely a blog tracing my project of an automated trading bot.
-                        Here, I will show you the details of the project, the different problems I faced and
-                        what I did to resolve them in the project details section. But you will also be able 
-                        to see the source code and follow my wallet evolution to see if the bot is working fine.
-                        I think it's good for a project introduction, I let you discover the project by yourself 
-                        by navigating throught the website.
-                    </p>
-                </aside>
+                <p> 
+                    This website is most likely a blog tracing my project of an automated trading bot.
+                    Here, I will show you the details of the project, the different problems I faced and
+                    what I did to resolve them in the project details section. But you will also be able 
+                    to see the source code and follow my wallet evolution to see if the bot is working fine.
+                    I think it's good for a project introduction, I let you discover the project by yourself 
+                    by navigating throught the website.
+                </p>
             </article>
             <article id="trade">
                 <h3>Lasts trades</h3>
@@ -44,7 +42,7 @@ const Homepage = () => {
                         if(counter > 5) {
                             style = { display: 'none' };
                         } else {
-                            style = trade.side === 'LONG' ? { backgroundColor: 'green' } : { backgroundColor: 'red' };
+                            style = trade.side === 'LONG' ? { backgroundColor: 'green', margin: 0 } : { backgroundColor: 'red', margin: 0 };
                         }
                         counter++;
                         return (
