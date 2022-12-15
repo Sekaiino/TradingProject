@@ -18,7 +18,10 @@
 }
 .App .app-header {
   min-height: 10vh;
+  width: 100vw;
   background-color: #616E7C;
+  position: fixed;
+  z-index: 1;
 }
 .App .app-header nav {
   margin: 2.5vh 0;
@@ -61,7 +64,7 @@
   text-decoration: underline;
 }
 .App section {
-  margin: 5vh 0;
+  margin: 20vh 0 5vh 0;
 }
 .App section h2 {
   margin: 5vh 0 5vh 5%;

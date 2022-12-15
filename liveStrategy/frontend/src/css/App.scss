@@ -21,7 +21,10 @@
     // Header
     .app-header {
         min-height: 10vh;
+        width: 100vw;
         background-color: #616E7C;
+        position: fixed;
+        z-index: 1;
         nav {
             margin: 2.5vh 0;
             display: flex;
@@ -58,7 +61,7 @@
 
     // Section
     section {
-        margin: 5vh 0;
+        margin: 20vh 0 5vh 0;
         h2 {margin: 5vh 0 5vh 5%;}
         &.trade {
             display: flex;
