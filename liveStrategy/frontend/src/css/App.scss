@@ -108,13 +108,13 @@
                 }
             }
         }
-        &.parameter form {
+        &.parameter aside {
             width: 100%;
             display: flex;
             flex-flow: row wrap;
             justify-content: center;
             align-items: center;
-            margin-bottom: 15vh;
+            margin: 0 0 15vh 0;
         }
         .pair-params {
             margin: 5vh 5vw;
@@ -132,12 +132,12 @@
                 margin-bottom: 2vh;
                 border-bottom: 1px solid #F5F7FA;
             }
-            label {
+            p {
                 width: 100%;
                 display: flex;
                 justify-content: space-between;
                 margin: 0.5vh 0;
-                input {
+                b {
                     width: 3vw;
                     padding: 2px;
                     text-align: center;
@@ -233,6 +233,12 @@
             }
         }
         strong {-webkit-text-stroke: 1px #F5F7FA;}
+        code {
+            background-color: opacify(#616E7C, 0.2);
+            padding: 0 5px;
+            border-radius: 4px;
+            font-style: italic;
+        }
     }
 
     // Footer

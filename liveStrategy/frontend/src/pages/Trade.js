@@ -1,4 +1,4 @@
-import useRequest from "../hooks/useRequest";
+import useRequest from "../hooks/useAPI";
 import Chart from "react-google-charts";
 import IsPending from "../components/IsPending";
 import Error from "../components/Error";
@@ -27,7 +27,7 @@ const Trade = () => {
     };
 
     return(
-        <section className="trade" style={{width: "100vw"}}>
+        <section className="trade" style={{width: "100vw"}} id="wallet">
             <h2>Trading history</h2>
             <aside>
                 <Chart 
@@ -38,7 +38,7 @@ const Trade = () => {
                     options={options}
                 />
             </aside>
-            <article className="transactions">
+            <article className="transactions" id="transactions">
                 <h3>Historical transactions</h3>
                 {transactions &&
                     <ul>
@@ -60,7 +60,7 @@ const Trade = () => {
                     </ul>
                 }
             </article>
-            <article>
+            <article id="trades">
                 <h3>Trades</h3>
                 { tradeIsPending && <IsPending /> }
                 { trades && 

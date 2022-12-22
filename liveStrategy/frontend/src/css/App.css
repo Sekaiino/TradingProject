@@ -120,13 +120,13 @@
     transform: rotate(360deg);
   }
 }
-.App section.parameter form {
+.App section.parameter aside {
   width: 100%;
   display: flex;
   flex-flow: row wrap;
   justify-content: center;
   align-items: center;
-  margin-bottom: 15vh;
+  margin: 0 0 15vh 0;
 }
 .App section .pair-params {
   margin: 5vh 5vw;
@@ -145,13 +145,13 @@
   margin-bottom: 2vh;
   border-bottom: 1px solid #F5F7FA;
 }
-.App section .pair-params label {
+.App section .pair-params p {
   width: 100%;
   display: flex;
   justify-content: space-between;
   margin: 0.5vh 0;
 }
-.App section .pair-params label input {
+.App section .pair-params p b {
   width: 3vw;
   padding: 2px;
   text-align: center;
@@ -258,6 +258,12 @@
 }
 .App article strong {
   -webkit-text-stroke: 1px #F5F7FA;
+}
+.App article code {
+  background-color: #616e7c;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-style: italic;
 }
 .App .app-footer {
   margin-top: auto;

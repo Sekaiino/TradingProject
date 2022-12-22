@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { HashLink } from 'react-router-hash-link';
 
 const Navbar = () => {
     return (
@@ -6,10 +6,10 @@ const Navbar = () => {
             <nav>
                 <img src={require('../images/logo2.png')} alt="logo" />
                 <ul className='menu'>
-                    <li><Link to="/">Home</Link></li>
-                    <li><Link to="/trade">Trades</Link></li>
-                    <li><Link to="/project_details">Project details</Link></li>
-                    <li><Link to="/parameter">Parameters</Link></li>
+                    <li><HashLink to="/#">Home</HashLink></li>
+                    <li><HashLink to="/trade#">Trades</HashLink></li>
+                    <li><HashLink to="/project_details#">Project details</HashLink></li>
+                    <li><HashLink to="/parameter#">Parameters</HashLink></li>
                 </ul>
             </nav>
         </header>

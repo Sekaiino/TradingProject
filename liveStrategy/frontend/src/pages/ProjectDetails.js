@@ -91,7 +91,7 @@ const ProjectDetails = () => {
                     </ul>
                 </details>
                 <details>
-                    <summary><IoIosArrowDropright className="drop_down" />Open&nbsp;<strong>SHORT</strong>&nbsp;(place limit order at pullback)</summary>
+                    <summary><IoIosArrowDropright className="drop_down" />Close&nbsp;<strong>SHORT</strong>&nbsp;(place limit order at pullback)</summary>
                     <ul>
                         <li>
                             <BsGraphDown className='icons'/>SuperTrend must be&nbsp;<strong>positive</strong>&nbsp;(green) OR short moving average must 
@@ -174,17 +174,17 @@ const ProjectDetails = () => {
                 <details>
                     <summary><IoIosArrowDropright className="drop_down" />I did my best to get a functional strategy, it breaks down as follows:</summary>
                     <ul>
-                        <li><SlTarget className="icons" />Load the &nbsp;<strong>trading parameters</strong>&nbsp; of the different pairs via an API request.</li>
-                        <li><SlTarget className="icons" />Load the environment variables needed for the Binance API connection. (.env file)</li>
-                        <li><SlTarget className="icons" />Initialize the various variables and objects needed to run the strategy.</li>
+                        <li><SlTarget className="icons" />Load the&nbsp;<strong>trading parameters</strong>&nbsp;of the different pairs via an API request.</li>
+                        <li><SlTarget className="icons" />Load the&nbsp;<strong>environment variables</strong>&nbsp;needed for the Binance API connection. (.env file)</li>
+                        <li><SlTarget className="icons" /><strong>Initialize</strong>&nbsp;the various variables and objects needed to run the strategy.</li>
                         <li><SlTarget className="icons" />Know on which pairs the algorithm is already in position.</li>
-                        <li><SlTarget className="icons" />Iterate on the different pairs on which the algorithm is not in position.</li>
-                        <li><SlTarget className="icons" />For each pair, check the opening condition of a LONG or SHORT.</li>
-                        <li><SlTarget className="icons" />If opening conditions are met, calculate the stop loss according to the closest support(LONG) or resistance(SHORT).</li>
-                        <li><SlTarget className="icons" />Pass the limit order and set the stop loss.</li>
-                        <li><SlTarget className="icons" />Save the order placement in the database via an API request.</li>
-                        <li><SlTarget className="icons" />For each open position, check the closing condition of LONG or SHORT.</li>
-                        <li><SlTarget className="icons" />If closure conditions are met, place the sales limit order.</li>
+                        <li><SlTarget className="icons" /><strong>Iterate</strong>&nbsp;on the different pairs on which the algorithm is not in position.</li>
+                        <li><SlTarget className="icons" />For each pair, check the opening condition of a&nbsp;<strong>LONG or SHORT</strong>.</li>
+                        <li><SlTarget className="icons" />If opening conditions are met, calculate the&nbsp;<strong>stop loss</strong>&nbsp;according to the closest support (LONG) or resistance (SHORT).</li>
+                        <li><SlTarget className="icons" />Pass the &nbsp;<strong>limit order</strong>&nbsp;and set the stop loss.</li>
+                        <li><SlTarget className="icons" />Save the order placement in the database via an&nbsp;<strong>API request</strong>.</li>
+                        <li><SlTarget className="icons" />For each open position, check the closing condition of&nbsp;<strong>LONG or SHORT</strong>.</li>
+                        <li><SlTarget className="icons" />If closure conditions are met, place the sales&nbsp;<strong>limit order</strong>.</li>
                     </ul>
                 </details>
                 <br />
@@ -199,11 +199,59 @@ const ProjectDetails = () => {
                     website.
                 </p>
                 <h4>4. Code the REST API</h4>
-                <p></p>
+                <p>
+                    I’ve already used MongoDB but I’ve never used it via an API before. This little challenge was not very difficult to do but 
+                    I satisfied myself with a more than basic Typescript API by following a template found on YouTube. I admit I don’t really 
+                    know how to improve this API and I don’t even know if an improvement is really necessary. If during my learning I realize 
+                    that major changes are necessary, everything will be changed. In the meantime do not hesitate to pull request in order to 
+                    propose your improvements.
+                </p>
                 <h4>5. Create the React App for the frontend</h4>
-                <p></p>
+                <p>
+                    I used <strong>create-react-app</strong> to get the project boilerplate. The rest was developed according to the schema of 
+                    a classic presentation site <strong>interacting</strong> with the API developed earlier. I didn’t really push the development 
+                    here because I’m still <strong>new to React</strong> but also because my goal was not to push React to the maximum. I reserve 
+                    this development style for a <strong>future application</strong> interacting with the blockchain <strong>(DApp)</strong>.
+                </p>
                 <h4>6. Deploy the App</h4>
-                <p></p>
+                <p>
+                    Here I have a lot to say, to start I just used an <strong>Amazon AWS EC2 instance</strong> to host <strong>all</strong> the 
+                    source files (trading algorithm, API and React app).
+                </p>
+                <br />
+                <p>
+                    for the algorithm, since we trade in 1 hour timeframe I have simply developed a <strong>Cronjob</strong> that executes the 
+                    command to launch the trading script. To enter the cron configuration, just write <code>crontab -e</code> and choose the 
+                    first option. Then just write our launch command: 
+                    <br /><br />
+                    <code>0 * * * * python3 home/&#123;folder&#125;/&#123;file&#125;.py&gt;&gt;tradinglog.log</code>. 
+                    <br /><br />
+                    In this case I choose to save the <strong>console outputs</strong> in a log file via <code>&gt;&gt;tradinglog.log</code>.
+                    <br /><br />
+                    Well that's all for the python script, let's go forward !
+                </p>
+                <br />
+                <p>
+                    On the <strong>API</strong> side, nothing complicated just keep running the script and a Javascript library allows that, it 
+                    is <strong>pm2</strong>. Just use the command <code>npm install pm2 -g</code> to be able to use pm2. Then we <strong>launch</strong> our 
+                    API with the command:
+                    <br /><br />
+                    <code>pm2 start ./src/index.ts --watch</code> 
+                    <br /><br />
+                    Note that pm2 don't recommend to use this command directly on Typescript, we should have transpile the app to have a faster script. Since 
+                    I don't need the fastest API ever I don't transpile my script.
+                    Here I consider that we are already in the <strong>API folder</strong> at the time of executing the command. To check that the script is 
+                    launched, simply use the <code>pm2 list</code> command and the different scripts managed by pm2 are displayed as a list. Once all this is 
+                    done it is necessary to check that the API works. For that, a simple request via curl is enough: 
+                    <br /><br />
+                    <code>curl http://localhost:8000/api/&#123;remains of the request&#125;</code> (in this case I perform a GET request).
+                    <br /><br />
+                    The API is now <strong>functional</strong> let’s move on!
+                </p>
+                <br />
+                <p>
+                    Let’s focus on the <strong>most important part</strong> for the visual rendering, the deployment of the site!
+                </p>
             </article>
 
             <article id="technology">
@@ -215,9 +263,9 @@ const ProjectDetails = () => {
                 <details>
                     <summary><IoIosArrowDropright className="drop_down" />Algorithm development</summary>
                     <ul>
-                        <li><FaPython className='icons' />Python 3.9</li>
+                        <li><FaPython className='icons' />Python 3.9.13</li>
                         <li><FaPython className='icons' />requests Python library for API call</li>
-                        <li><FaPython className='icons' />ta Python library for technical analysis</li>
+                        <li><FaPython className='icons' />ta Python library for technical analysis indicators</li>
                     </ul>
                 </details>
                 <details>

@@ -1,6 +1,6 @@
 import Error from "../components/Error";
 import IsPending from "../components/IsPending";
-import useRequest from "../hooks/useRequest";
+import useRequest from "../hooks/useAPI";
 
 const Homepage = () => {
 
