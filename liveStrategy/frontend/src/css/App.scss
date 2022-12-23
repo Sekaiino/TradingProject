@@ -27,10 +27,11 @@
         z-index: 1;
         nav {
             margin: 2.5vh 0;
+            width: 100%;
             display: flex;
             flex-flow: row wrap;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
             img { 
                 margin-left: 2.5vw;
                 width: 5%;
@@ -40,12 +41,13 @@
                 0% {transform: rotate(0deg);}
                 100% {transform: rotate(360deg);}
             }
+            label, #toggler {display: none;}
             ul {
                 display: flex;
                 flex-flow: row wrap;
                 align-items: center;
                 width: 90%;
-                justify-content: flex-start;
+                justify-content: flex-end;
                 &:hover > :not(:hover) { opacity: .4;}
                 li { 
                     margin: 0 5vw;
@@ -55,6 +57,26 @@
                         &:hover { text-decoration: underline; }
                     }
                 }
+            }
+        }
+        // Responsive header
+        @media screen and (max-width: 700px) {
+            .menu {
+                display: none;
+            }
+            nav label {
+                display: block;
+                cursor: pointer;
+                margin-right: 2.5%;
+                width: 10%;
+            }
+            nav img {width: 10%;}
+            #toggler:checked ~ .menu {
+                display: flex;
+                flex-flow: column wrap;
+                align-items: center;
+                margin: 1% auto;
+                li {margin: 2.5% 0;}
             }
         }
     }
@@ -265,5 +287,24 @@
             }
         }
         aside:last-child { margin-top: 7.5vh; }
+
+        // Responsive footer
+        @media screen and (max-width: 700px) {
+            aside {
+                &:last-child {margin: 3vh 0;}
+                ul li {
+                    font-size: .8em;
+                }
+                h3 {font-size: 1em;}
+                p {font-size: .9em;}
+                .network {
+                    align-items: flex-end;
+                    li {
+                        margin: 0 2.5vw;
+                        transform: scale(1.5);
+                    }
+                }
+            }
+        }
     }
 }

@@ -25,10 +25,11 @@
 }
 .App .app-header nav {
   margin: 2.5vh 0;
+  width: 100%;
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 .App .app-header nav img {
   margin-left: 2.5vw;
@@ -43,12 +44,15 @@
     transform: rotate(360deg);
   }
 }
+.App .app-header nav label, .App .app-header nav #toggler {
+  display: none;
+}
 .App .app-header nav ul {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
   width: 90%;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 .App .app-header nav ul:hover > :not(:hover) {
   opacity: 0.4;
@@ -62,6 +66,29 @@
 }
 .App .app-header nav ul li a:hover {
   text-decoration: underline;
+}
+@media screen and (max-width: 700px) {
+  .App .app-header .menu {
+    display: none;
+  }
+  .App .app-header nav label {
+    display: block;
+    cursor: pointer;
+    margin-right: 2.5%;
+    width: 10%;
+  }
+  .App .app-header nav img {
+    width: 10%;
+  }
+  .App .app-header #toggler:checked ~ .menu {
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    margin: 1% auto;
+  }
+  .App .app-header #toggler:checked ~ .menu li {
+    margin: 2.5% 0;
+  }
 }
 .App section {
   margin: 20vh 0 5vh 0;
@@ -294,6 +321,27 @@
 }
 .App .app-footer aside:last-child {
   margin-top: 7.5vh;
+}
+@media screen and (max-width: 700px) {
+  .App .app-footer aside:last-child {
+    margin: 3vh 0;
+  }
+  .App .app-footer aside ul li {
+    font-size: 0.8em;
+  }
+  .App .app-footer aside h3 {
+    font-size: 1em;
+  }
+  .App .app-footer aside p {
+    font-size: 0.9em;
+  }
+  .App .app-footer aside .network {
+    align-items: flex-end;
+  }
+  .App .app-footer aside .network li {
+    margin: 0 2.5vw;
+    transform: scale(1.5);
+  }
 }
 
 /*# sourceMappingURL=App.css.map */

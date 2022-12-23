@@ -251,6 +251,20 @@ const ProjectDetails = () => {
                 <br />
                 <p>
                     Let’s focus on the <strong>most important part</strong> for the visual rendering, the deployment of the site!
+                    I will not detail this part too much because it would take too much time and tutorials much better than my explanations already exist on the internet. 
+                    I use <strong>NGINX</strong> to make the site accessible, to install it just write the command: 
+                    <br /><br />
+                    <code>sudo apt install nginx</code>. 
+                    <br /><br />
+                    Then a <strong>firewall adjustment</strong> is necessary to allow http or https traffic (you must also allow it directly on <strong>Amazon AWS</strong> in 
+                    the security settings of the instance). Once all this is done, the server is accessible on Internet but we arrive on the <strong>NGINX homepage</strong> and 
+                    not the site we want deployed. You must then copy and paste the contents of the <strong>build folder</strong> of our React application into a certain directory 
+                    that bears the site’s domain name. Finally, just <strong>change the configuration file</strong> to redirect the traffic but also to redirect API requests. 
+                    In this case, it is via a <strong>reverse proxy</strong> that the requests pass because the API runs in localhost. The site is now <strong>accessible</strong> on 
+                    the Internet! However it is only accessible via http and we want it in https for the security standard. I just used <strong>certbot</strong> to get this security 
+                    standard, it’s a very simple module to use. 
+                    <br /><br />
+                    That’s it! The site is now <strong>online and accessible!</strong> Here ends the detail of the project, it will be updated as I add features.
                 </p>
             </article>
 
