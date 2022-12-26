@@ -7,7 +7,7 @@ const Parameters = () => {
     const params = data.constructor !== Array ? data.coinconfig[0] : false;
 
     return(
-        <div>
+        <>
             { error && <Error /> }
             { isPending && <IsPending /> }
             { params &&
@@ -65,7 +65,7 @@ const Parameters = () => {
                     </aside>
                 </section>
             }
-        </div>
+        </>
     )
 }
 

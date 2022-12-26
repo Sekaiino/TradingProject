@@ -2,6 +2,7 @@ import useRequest from "../hooks/useAPI";
 import Chart from "react-google-charts";
 import IsPending from "../components/IsPending";
 import Error from "../components/Error";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const Trade = () => {
     const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
@@ -14,6 +15,11 @@ const Trade = () => {
     const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
     const transactions = transactionData.constructor !== Array ? transactionData.transactions : false;
 
+    const { width } = useWindowDimensions();
+
+    const chartHeight = width <= 700 ? "50%" : "70%";
+    const chartWidth = width <= 700 ? "90vw" : "50vw";
+
     const asset = [
         ["Date", "Assets"],
         ["today", 301.23]
@@ -23,16 +29,16 @@ const Trade = () => {
         title: "Wallet evolution",
         backgroundColor: '#F5F7FA',
         vAxis: { minValue: 0 },
-        chartArea: { width: "50%", height: "70%" },
+        chartArea: { width: "60%", height: chartHeight },
     };
 
     return(
-        <section className="trade" style={{width: "100vw"}} id="wallet">
+        <section className="trade" style={{width: "100vw", overflowX: "hidden"}} id="wallet">
             <h2>Trading history</h2>
             <aside>
                 <Chart 
                     chartType="AreaChart"
-                    width="50vw"
+                    width= {chartWidth}
                     height="50vh"
                     data={asset}
                     options={options}
