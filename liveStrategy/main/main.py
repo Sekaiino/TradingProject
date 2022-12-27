@@ -256,9 +256,9 @@ class Users():
             try:
                 response = requests.post('http://localhost:8000/api/wallet/create', data=data)
                 if not response.ok:
-                    print('Impossible to post trade to the database')
+                    print('Impossible to post wallet to the database')
             except:
-                print('HTTP error')
+                print('HTTP error in getActualWallet')
                 pass
 
 # Start algo
