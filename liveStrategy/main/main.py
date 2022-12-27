@@ -259,7 +259,7 @@ class Users():
                     print('Impossible to post wallet to the database')
             except:
                 print('HTTP error in getActualWallet')
-                pass
+                pass 
 
 # Start algo
 if __name__ == "__main__":
