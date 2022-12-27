@@ -3,6 +3,7 @@ from utils.customIndicators import SuperTrend
 from utils.binanceSpot import Binance
 from datetime import datetime, timedelta
 from typing import Optional
+from datetime import datetime
 from dotenv import load_dotenv
 import pandas as pd
 import requests
@@ -24,6 +25,7 @@ def main(secret: dict, paramCoins: dict) -> None:
     superReversal.checkOrderState()
     superReversal.getSuperTrend()
     superReversal.superReversalStrategy()
+    superReversal.getActualWallet()
 
 class Users():
     def __init__(self, secret: dict, paramCoins: dict, timeframe: str, type: list=["long"]) -> None:
@@ -243,6 +245,21 @@ class Users():
                 )
                 # Place limit order to execute it when we got the right price
                 self.client.place_limit_order(pair, "BUY", "SHORT", sellQuantity, sellLimitPrice, self.leverage)
+
+    def getActualWallet(self):
+        now = datetime.now()
+        if int(now.hour) == 24:
+            # Register the total wallet of the day
+            data: dict = {
+                'totalBalance': self.totalBalance
+            }
+            try:
+                response = requests.post('http://localhost:8000/api/wallet/create', data=data)
+                if not response.ok:
+                    print('Impossible to post trade to the database')
+            except:
+                print('HTTP error')
+                pass
 
 # Start algo
 if __name__ == "__main__":
