@@ -249,12 +249,20 @@ class Binance():
             exit()
 
     @authentication_required
-    def get_open_orders(self, symbol: str=None) -> dict:
+    def get_open_orders(self) -> list:
         try:
-            if symbol is None:
-                return self._trade.futures_get_open_orders()
+            return self._trade.futures_get_open_orders()
 
-            return self._trade.futures_get_open_orders(symbol=symbol)
+        except BaseException as err:
+            print("An error occured", err)
+            exit()
+
+    @authentication_required
+    def get_open_positions(self) -> list:
+        try:
+            positions: list = [obj for obj in self._trade.futures_account()['positions'] if float(obj['positionAmt']) > 0]
+            return positions
+
         except BaseException as err:
             print("An error occured", err)
             exit()

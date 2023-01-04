@@ -45,8 +45,9 @@ class Users():
         self.client: object = Binance(
             apiKey=secret["apiKey"],
             secret=secret["secret"]
-            )
-        self.openOrders: dict = self.client.get_open_orders()
+        )
+        self.openOrders: list = self.client.get_open_orders()
+        self.openPositions: list = self.client.get_open_positions()
         self.coinBalance: dict = self.client.get_all_balance()
         self.coinInUsd: dict = self.client.get_all_balance_in_usd()
         self.usdBalance: float = self.coinBalance["USDT"]
@@ -57,7 +58,7 @@ class Users():
         self.totalBalance: float = self.usdBalance + sum(self.coinInUsd.values())
 
     def checkOrderState(self) -> None:
-        """Checking if there is orders that are partially or totally not filled, if it is cancel them
+        """Checking if there is orders that are partially or not filled, if it is pass them in market order to fill the order
         """
         for order in self.openOrders:
             if float(order["executedQty"]) > 0:
@@ -98,10 +99,13 @@ class Users():
     def superReversalStrategy(self) -> None:
         """Buy and sell order to follow the Super Reversal Strategy
         """
-        for coin in self.coinInUsd:
-            if self.coinBalance[coin] > float(self.client.get_min_order_amount(coin + "USDT")):
-                self.positions.append(coin + "USDT")
-                self.availableWalletPct -= self.paramCoins[coin + "USDT"]["wallet_exposure"]
+        # for coin in self.coinInUsd:
+        #     if self.coinBalance[coin] > float(self.client.get_min_order_amount(coin + "USDT")):
+        #         self.positions.append(coin + "USDT")
+        #         self.availableWalletPct -= self.paramCoins[coin + "USDT"]["wallet_exposure"]
+        for obj in self.openPositions:
+            self.positions.append(obj['symbol'])
+            self.availableWalletPct -= self.paramCoins[obj['symbol']]["wallet_exposure"]
 
         pairToCheck: list = list(set(self.paramCoins.keys()) - set(self.positions))
 
@@ -128,7 +132,11 @@ class Users():
                         f"Place LONG Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.client.place_limit_order(pair, "BUY", "LONG", buyQuantity, buyLimitPrice, self.leverage)
+                    try:
+                        self.client.place_limit_order(pair, "BUY", "LONG", buyQuantity, buyLimitPrice, self.leverage)
+                    except Exception as err:
+                        print("An error occured", err)
+                        pass
 
                     # Place the stop loss at last important level
                     minSl: Optional[float] = meanLevels[0] if meanLevels else None
@@ -175,7 +183,11 @@ class Users():
                         f"Place SHORT Limit Order: {buyQuantity} {pair[:-4]} at the price of {buyLimitPrice}$ ~{round(exchangeBuyQuantity, 2)}$"
                     )
                     # Place limit order to execute it when we got the right price
-                    self.client.place_limit_order(pair, "SELL", "SHORT", buyQuantity, buyLimitPrice, self.leverage)
+                    try:
+                        self.client.place_limit_order(pair, "SELL", "SHORT", buyQuantity, buyLimitPrice, self.leverage)
+                    except Exception as err:
+                        print("An error occured", err)
+                        pass
 
                     # Place a market stop loss at the last important level
                     minSl: Optional[float] = meanLevels[0] if meanLevels else None
@@ -228,7 +240,11 @@ class Users():
                     f"Place CLOSE LONG Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.client.place_limit_order(pair, "SELL", "LONG", sellQuantity, sellLimitPrice, self.leverage)
+                try:
+                    self.client.place_limit_order(pair, "SELL", "LONG", sellQuantity, sellLimitPrice, self.leverage)
+                except Exception as err:
+                    print("An error occured", err)
+                    pass
             
             # Check if you have to close the short position
             if((self.useShort)
@@ -244,7 +260,11 @@ class Users():
                     f"Place CLOSE SHORT Limit Order: {sellQuantity} {pair[:-4]} at the price of {sellLimitPrice}$ ~{round(exchangeSellQuantity, 2)}$"
                 )
                 # Place limit order to execute it when we got the right price
-                self.client.place_limit_order(pair, "BUY", "SHORT", sellQuantity, sellLimitPrice, self.leverage)
+                try:
+                    self.client.place_limit_order(pair, "BUY", "SHORT", sellQuantity, sellLimitPrice, self.leverage)
+                except Exception as err:
+                    print("An error occured", err)
+                    pass
 
     def getActualWallet(self):
         now = datetime.now()
