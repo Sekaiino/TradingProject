@@ -1,0 +1,15 @@
+{
+  "short_name": "Trading App",
+  "name": "This App to show my work over a big automated trading project",
+  "icons": [
+    {
+      "src": "logo2.png",
+      "sizes": "300x300",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
