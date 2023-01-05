@@ -267,7 +267,7 @@ class Users():
         if int(now.hour) == 24:
             # Register the total wallet of the day
             data: dict = {
-                'totalBalance': self.totalBalance
+                'totalBalance': float(self.totalBalance)
             }
             try:
                 response = requests.post('http://localhost:8000/api/wallet/create', data=data)
@@ -288,8 +288,8 @@ if __name__ == "__main__":
         response.raise_for_status()
 
     load_dotenv()
-    API_KEY: str    = os.getenv('API_KEY')
-    SECRET_KEY: str = os.getenv('API_SECRET')
+    API_KEY: str      = os.getenv('API_KEY')
+    SECRET_KEY: str   = os.getenv('API_SECRET')
     binanceAuth: dict = { "apiKey": API_KEY, "secret": SECRET_KEY }
 
     # run main function
