@@ -264,7 +264,7 @@ class Users():
 
     def getActualWallet(self):
         now = datetime.now()
-        if int(now.hour) == 00:
+        if int(now.hour) == 0:
             # Register the total wallet of the day
             data: dict = {
                 'totalBalance': float(self.totalBalance)
