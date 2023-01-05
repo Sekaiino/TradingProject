@@ -99,10 +99,6 @@ class Users():
     def superReversalStrategy(self) -> None:
         """Buy and sell order to follow the Super Reversal Strategy
         """
-        # for coin in self.coinInUsd:
-        #     if self.coinBalance[coin] > float(self.client.get_min_order_amount(coin + "USDT")):
-        #         self.positions.append(coin + "USDT")
-        #         self.availableWalletPct -= self.paramCoins[coin + "USDT"]["wallet_exposure"]
         for obj in self.openPositions:
             self.positions.append(obj['symbol'])
             self.availableWalletPct -= self.paramCoins[obj['symbol']]["wallet_exposure"]
