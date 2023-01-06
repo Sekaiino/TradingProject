@@ -5,13 +5,13 @@ import Error from "../components/Error";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const Trade = () => {
-    const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
+    const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', '/api/trade/get/');
     const trades = tradeData.constructor !== Array ? tradeData.trade : false;
 
-    const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', 'http://localhost:8000/api/wallet/get/');
+    const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', '/api/wallet/get/');
     const wallets = walletData.constructor !== Array ? walletData.wallet : false;
 
-    const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
+    const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', '/api/transactions/get/');
     const transactions = transactionData.constructor !== Array ? transactionData.transactions : false;
 
     const { width } = useWindowDimensions();

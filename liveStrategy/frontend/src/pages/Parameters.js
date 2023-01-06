@@ -3,7 +3,7 @@ import Error from '../components/Error';
 import useRequest from "../hooks/useAPI";
 
 const Parameters = () => {
-    const { data, isPending, error } = useRequest("GET", "http://localhost:8000/api/coinconfig/get/");
+    const { data, isPending, error } = useRequest("GET", "/api/coinconfig/get/");
     const params = data.constructor !== Array ? data.coinconfig[0] : false;
 
     return(

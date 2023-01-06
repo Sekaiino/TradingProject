@@ -47,5 +47,6 @@
   },
   "devDependencies": {
     "@types/react-router-hash-link": "^2.4.5"
-  }
+  },
+  "proxy": "http://localhost:8000"
 }

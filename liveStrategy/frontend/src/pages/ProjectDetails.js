@@ -244,7 +244,7 @@ const ProjectDetails = () => {
                     launched, simply use the <code>pm2 list</code> command and the different scripts managed by pm2 are displayed as a list. Once all this is 
                     done it is necessary to check that the API works. For that, a simple request via curl is enough: 
                     <br /><br />
-                    <code>curl http://localhost:8000/api/&#123;remains of the request&#125;</code> (in this case I perform a GET request).
+                    <code>curl /api/&#123;remains of the request&#125;</code> (in this case I perform a GET request).
                     <br /><br />
                     The API is now <strong>functional</strong> let’s move on!
                 </p>

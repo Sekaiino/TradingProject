@@ -4,7 +4,7 @@ import useRequest from "../hooks/useAPI";
 
 const Homepage = () => {
 
-    const { data, isPending, error } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
+    const { data, isPending, error } = useRequest('GET', '/api/trade/get/');
     const trades = data.constructor !== Array ? data.trade : false;
 
     return(
