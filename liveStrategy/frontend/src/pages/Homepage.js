@@ -6,7 +6,6 @@ const Homepage = () => {
 
     const { data, isPending, error } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
     const trades = data.constructor !== Array ? data.trade : false;
-    let counter = 1;
 
     return(
         <section className="home">
@@ -37,17 +36,12 @@ const Homepage = () => {
                         <h4>Side</h4>
                     </li>
                     <hr />
-                    {(trades.map((trade) => {
-                        let style = {}
-                        if(counter > 5) {
-                            style = { display: 'none' };
-                        } else {
-                            style = trade.side === 'LONG' ? { backgroundColor: 'green', margin: 0 } : { backgroundColor: 'red', margin: 0 };
-                        }
-                        counter++;
+                    {(trades.slice((trades.length - 5), trades.length).map((trade) => {
+                        let style = trade.side === 'LONG' ? { backgroundColor: 'green', margin: 0 } : { backgroundColor: 'red', margin: 0 };
+
                         return (
                             <li style={style} key={trade._id}>
-                            <p>{(trade.date).toString().replace("T", " ").replace("Z", " ")}</p>
+                            <p>{(trade.date).toString().replace("T", " ").replace("Z", " ").substring(0, 16)}</p>
                             <p>{trade.pairSymbol}</p>
                             <p>{trade.sl} $</p>
                             <p>{trade.buyQuantity} {(trade.pairSymbol).replace("USDT", "")}</p>

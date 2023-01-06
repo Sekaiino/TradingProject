@@ -8,10 +8,9 @@ const Trade = () => {
     const { data: tradeData, isPending: tradeIsPending, error: tradeError } = useRequest('GET', 'http://localhost:8000/api/trade/get/');
     const trades = tradeData.constructor !== Array ? tradeData.trade : false;
 
-    // const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', 'http://localhost:8000/api/wallet/get/');
-    // const wallets = walletData.constructor !== Array ? walletData.wallet : false;
+    const { data: walletData, isPending: walletIsPending, error: walletError } = useRequest('GET', 'http://localhost:8000/api/wallet/get/');
+    const wallets = walletData.constructor !== Array ? walletData.wallet : false;
 
-    // eslint-disable-next-line
     const { data: transactionData, isPending: transactionIsPending, error: transactionError } = useRequest('GET', 'http://localhost:8000/api/transactions/get/');
     const transactions = transactionData.constructor !== Array ? transactionData.transactions : false;
 
@@ -21,9 +20,12 @@ const Trade = () => {
     const chartWidth = width <= 700 ? "90vw" : "50vw";
 
     const asset = [
-        ["Date", "Assets"],
-        ["today", 301.23]
+        ["Date", "Assets"]
     ];
+
+    for (let index = 0; index < wallets.length; index++) {
+        asset.push([wallets[index].date.toString().substring(5, 10), wallets[index].totalBalance]);
+    }
 
     const options = {
         title: "Wallet evolution",
@@ -36,16 +38,22 @@ const Trade = () => {
         <section className="trade" style={{width: "100vw", overflowX: "hidden"}} id="wallet">
             <h2>Trading history</h2>
             <aside>
-                <Chart 
-                    chartType="AreaChart"
-                    width= {chartWidth}
-                    height="50vh"
-                    data={asset}
-                    options={options}
-                />
+                {walletError && <Error />}
+                {walletIsPending && <IsPending />}
+                {walletData && 
+                    <Chart 
+                        chartType="AreaChart"
+                        width= {chartWidth}
+                        height="50vh"
+                        data={asset}
+                        options={options}
+                    />
+                }
             </aside>
             <article className="transactions" id="transactions">
                 <h3>Historical transactions</h3>
+                {transactionError && <Error />}
+                {transactionIsPending && <IsPending />}
                 {transactions &&
                     <ul>
                         <li className="title">
@@ -81,11 +89,11 @@ const Trade = () => {
                         <h4>Side</h4>
                     </li>
                     <hr />
-                    {trades.map((trade) => {
+                    {trades.slice((trades.length - 20), trades.length).map((trade) => {
                         let style = trade.side === 'LONG' ? { backgroundColor: 'green' } : { backgroundColor: 'red' };
                         return (
                             <li style={style} key={trade._id}>
-                                <p>{(trade.date).toString().replace("T", " ").replace("Z", " ")}</p>
+                                <p>{(trade.date).toString().replace("T", " ").replace("Z", " ").substring(0, 16)}</p>
                                 <p>{trade.pairSymbol}</p>
                                 <p>{trade.sl} $</p>
                                 <p>{trade.buyQuantity} {(trade.pairSymbol).replace("USDT", "")}</p>
