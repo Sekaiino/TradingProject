@@ -32,6 +32,7 @@ class Users():
         # general variables
         self.dfList: dict = {}
         self.positions: list = []
+        self.orders: list = []
         self.leverage: int = 1
         self.paramCoins: dict = paramCoins
         self.timeframe: str = timeframe
@@ -61,6 +62,9 @@ class Users():
         """Checking if there is orders that are partially or not filled, if it is pass them in market order to fill the order
         """
         for order in self.openOrders:
+            if order['symbol'] not in self.orders:
+                self.orders.append(order['symbol'])
+
             if float(order["executedQty"]) > 0:
                 print(
                     f"Order on {order['symbol']} is partially fill, create {order['side']} Market of {float(order['origQty']) - float(order['executedQty'])} {order['symbol']} order to complete it"
@@ -73,7 +77,7 @@ class Users():
         """
         for pair in self.paramCoins:
             params: dict = self.paramCoins[pair]
-            self.client.cancel_all_open_order(pair)
+            #self.client.cancel_all_open_order(pair)
             df: pd.DataFrame = self.client.get_last_historical(pair, self.timeframe, 2000)
             # -- Populate indicators --
             superTrendObj: object = SuperTrend(
@@ -103,7 +107,7 @@ class Users():
             self.positions.append(obj['symbol'])
             self.availableWalletPct -= self.paramCoins[obj['symbol']]["wallet_exposure"]
 
-        pairToCheck: list = list(set(self.paramCoins.keys()) - set(self.positions))
+        pairToCheck: list = list(set(self.paramCoins.keys()) - set(self.positions) - set(self.orders))
 
         #Check the buy signal for every pair
         for pair in pairToCheck:
