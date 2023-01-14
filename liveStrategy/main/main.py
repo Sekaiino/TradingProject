@@ -72,12 +72,15 @@ class Users():
                 self.client.cancel_all_open_order(order["symbol"])
                 self.client.place_market_order(order["symbol"], order['positionSide'], order["side"], float(order['origQty']) - float(order['executedQty']), self.leverage)
 
+            elif float(order["executedQty"]) == 0 and order["origType"] != 'STOP_MARKET':
+                # Cancel order
+                self.client.cancel_all_open_order(order['symbol'])
+
     def getSuperTrend(self) -> dict:
         """This init the SuperTrend indicators to take trade with it
         """
         for pair in self.paramCoins:
             params: dict = self.paramCoins[pair]
-            #self.client.cancel_all_open_order(pair)
             df: pd.DataFrame = self.client.get_last_historical(pair, self.timeframe, 2000)
             # -- Populate indicators --
             superTrendObj: object = SuperTrend(
@@ -268,7 +271,7 @@ class Users():
 
     def getActualWallet(self):
         now = datetime.now()
-        if int(now.hour) == 0:
+        if int(now.hour) == 23:
             # Register the total wallet of the day
             data: dict = {
                 'totalBalance': float(self.totalBalance)
