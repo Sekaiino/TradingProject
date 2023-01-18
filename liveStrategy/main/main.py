@@ -22,10 +22,10 @@ def main(secret: dict, paramCoins: dict) -> None:
         raise ValueError("Wallet exposure must be less or equal than 1")
 
     superReversal: object = Users(secret, paramCoins, "1h", ["long", "short"])
+    superReversal.getActualWallet()
     superReversal.checkOrderState()
     superReversal.getSuperTrend()
     superReversal.superReversalStrategy()
-    superReversal.getActualWallet()
 
 class Users():
     def __init__(self, secret: dict, paramCoins: dict, timeframe: str, type: list=["long"]) -> None:
@@ -143,13 +143,14 @@ class Users():
 
                     # Place the stop loss at last important level
                     minSl: Optional[float] = meanLevels[0] if meanLevels else None
-                    maxSl: float = self.client.get_price_of_one_coin(pair)
+                    maxSl: float = buyLimitPrice - (buyLimitPrice / 100 * 2)
+
                     if minSl:
                         for price in meanLevels:
-                            if(price > minSl and price < buyLimitPrice and price < maxSl):
+                            if(price > minSl and price < buyLimitPrice and price <= maxSl):
                                 minSl = price
 
-                    if minSl > 0 and minSl < maxSl:
+                    if minSl > 0 and minSl <= maxSl:
                         self.client.place_market_stop_loss(pair, "SELL", "LONG", minSl, self.leverage)
 
                     # Update data
@@ -194,13 +195,14 @@ class Users():
 
                     # Place a market stop loss at the last important level
                     minSl: Optional[float] = meanLevels[0] if meanLevels else None
-                    maxSl: float = self.client.get_price_of_one_coin(pair)
+                    maxSl: float = buyLimitPrice + (buyLimitPrice / 100 * 2)
+                    
                     if minSl:
                         for price in meanLevels:
-                            if(price < minSl and price > buyLimitPrice and price > maxSl):
+                            if(price < minSl and price > buyLimitPrice and price >= maxSl):
                                 minSl = price
 
-                    if minSl > maxSl:
+                    if minSl >= maxSl:
                         self.client.place_market_stop_loss(pair, "BUY", "SHORT", minSl, self.leverage)
 
                     # Update data
